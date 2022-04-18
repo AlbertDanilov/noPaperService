@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using noPaperService_common.Entities;
+using noPaperService_common.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -16,6 +17,8 @@ namespace noPaperAPI_robot1.DAL.Helpers
 
         public static List<EcpSignData_pv> GetEcpSignData()
         {
+            LogHelper.WriteLog("GetEcpSignData");
+
             DataTable dt = new DataTable("T");
             List<EcpSignData_pv> docItems = null;
 
@@ -35,9 +38,10 @@ namespace noPaperAPI_robot1.DAL.Helpers
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                //добавить логгер
+                LogHelper.WriteLog($"Exception: {ex.Message}");
+                return null;
             }
 
             try
@@ -152,9 +156,10 @@ namespace noPaperAPI_robot1.DAL.Helpers
                                }).ToList()
                            }).ToList();
             }
-            catch
+            catch (Exception ex)
             {
-                //добавить логгер
+                LogHelper.WriteLog($"GroupBy Exception: {ex.Message}");
+                return null;
             }
 
             return docItems;

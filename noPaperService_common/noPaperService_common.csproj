@@ -65,6 +65,8 @@
     <Compile Include="Entities\EcpSignData_ttns.cs" />
     <Compile Include="Entities\ReturnData.cs" />
     <Compile Include="Entities\SignComponent.cs" />
+    <Compile Include="Helpers\FormatHelper.cs" />
+    <Compile Include="Helpers\LogHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

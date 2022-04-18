@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace noPaperService_common.Entities
 {
+    [Serializable()]
     public class EcpSignData_p7s
     {
         public Int64 pv_id { get; set; }
-        public String sign { get; set; }
+        public Byte[] sign { get; set; }
     }
 }

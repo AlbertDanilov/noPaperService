@@ -1,9 +1,12 @@
 ﻿using Newtonsoft.Json;
 using noPaperService_common.Entities;
+using noPaperService_common.Helpers;
 using noPaperService_ecpWorker;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
@@ -59,15 +62,17 @@ namespace noPaperAPI_robot2
                         Console.WriteLine($"Received document [{doc.pv_id}] N{counterJson++}");
 
                         //подписать
-                        ReturnData data = ECP.Sign("9ddc7831adb7be917f4a7e2d98640cd8d64afe3c", body.ToArray());
-
+                        ReturnData p7s = ECP.Sign("9ddc7831adb7be917f4a7e2d98640cd8d64afe3c", body.ToArray());
                         Console.WriteLine($"Signed document [{doc.pv_id}]");
 
+                        EcpSignData_p7s p7sData = new EcpSignData_p7s() { pv_id = doc.pv_id, sign = (Byte[])p7s.data };
+                        Byte[] sendData = FormatHelper.ToByteArray(p7sData);
+
                         //отправить
-                        //channel.BasicPublish(exchange: "signData",
-                        //                             routingKey: routingKeyP7s,
-                        //                             basicProperties: null,
-                        //                             body: p7s);
+                        channel.BasicPublish(exchange: "signData",
+                                                     routingKey: routingKeyP7s,
+                                                     basicProperties: null,
+                                                     body: sendData);
                         Console.WriteLine($"Sended sign [{doc.pv_id}]");
                     }
                     catch (Exception ex)

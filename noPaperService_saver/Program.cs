@@ -1,9 +1,11 @@
 ﻿using Newtonsoft.Json;
 using noPaperService_common.Entities;
+using noPaperService_common.Helpers;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
 using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 
 namespace noPaperAPI_robot3
@@ -48,14 +50,13 @@ namespace noPaperAPI_robot3
             {
                 channel.ExchangeDeclare(exchange: "signData", type: ExchangeType.Direct, autoDelete: true);
 
-                var queueNameJson = channel.QueueDeclare().QueueName;
-                var queueNameP7s = channel.QueueDeclare().QueueName;
+                var queueName = channel.QueueDeclare().QueueName;
 
-                channel.QueueBind(queue: queueNameJson,
+                channel.QueueBind(queue: queueName,
                                   exchange: "signData",
                                   routingKey: routingKeyJson);
 
-                channel.QueueBind(queue: queueNameP7s,
+                channel.QueueBind(queue: queueName,
                                   exchange: "signData",
                                   routingKey: routingKeyP7s);
 
@@ -70,34 +71,39 @@ namespace noPaperAPI_robot3
                         switch (e.RoutingKey)
                         {
                             case "json":
+                                //получаем
                                 var message = Encoding.UTF8.GetString(body.ToArray());
+
+                                //конвертируем
                                 EcpSignData_pv doc = JsonConvert.DeserializeObject<EcpSignData_pv>(message);
                                 Console.WriteLine($"Received document [{doc.pv_id}] N{counterJson++}");
+
+                                //сохраняем
                                 File.WriteAllText(jsonPath + $"\\{doc.pv_id}.json", message);
                                 break;
+
                             case "p7s":
-                                var message2 = Encoding.UTF8.GetString(body.ToArray());
-                                EcpSignData_p7s signData = JsonConvert.DeserializeObject<EcpSignData_p7s>(message2);
+                                //получаем, конвертируем
+                                EcpSignData_p7s signData = FormatHelper.FromByteArray<EcpSignData_p7s>(body.ToArray());
                                 Console.WriteLine($"Received document [{signData.pv_id}] N{counterP7s++}");
-                                File.WriteAllText(p7sPath + $"\\{signData.pv_id}.p7s", message2);
 
-                                //отправить сообщение о подписывании {signData.pv_id}
-
+                                //сохраняем
+                                File.WriteAllBytes(p7sPath + $"\\{signData.pv_id}.p7s", signData.sign);
                                 break;
                         }
                     }
-                    catch
+                    catch (Exception ex)
                     {
                         //добавить логгер
                     }
                 };
 
-                channel.BasicConsume(queue: queueNameJson,
+                channel.BasicConsume(queue: queueName,
                                      autoAck: true,
                                      consumer: consumer);
 
-                Console.WriteLine($"Subscribed to the queue JSON '{queueNameJson}'");
-                Console.WriteLine($"Subscribed to the queue JSON '{queueNameP7s}'");
+                Console.WriteLine($"Subscribed to the queue JSON '{queueName}'");
+                Console.WriteLine($"Subscribed to the queue P7S '{queueName}'");
 
                 Console.ReadLine();
 

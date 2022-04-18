@@ -1,5 +1,6 @@
 ﻿using noPaperAPI_robot1.DAL.Helpers;
 using noPaperService_common.Entities;
+using noPaperService_common.Helpers;
 using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;
@@ -29,58 +30,58 @@ namespace noPaperAPI
             4. Ставим отметку sended в таблице pri_voz_worked_out            
             */
 
-            Console.WriteLine($"Robot1 run (send documents to store and for sign)");
+            LogHelper.RemoveOldLog();
+
+            string t = $"Robot1 run (send documents to store and for sign)";
+            Console.WriteLine(t);
+            LogHelper.WriteLog(t);
             Console.WriteLine("");
+            
+            string routingKeyJson = "json";
+            var counter = 1;
 
-            Task.Run(CreateTask());
+            //получаем данные о накладных для подписывания
+            List<EcpSignData_pv> docItems = DataHelper.GetEcpSignData();
 
-            Console.ReadLine();
-        }
+            if (docItems != null && docItems.Count > 0) {           
 
-        static Func<Task> CreateTask()
-        {
-            return () => {
-                string routingKeyJson = "json";
-                var counter = 1;
-                do
+                var factory = new ConnectionFactory()
                 {
-                    List<EcpSignData_pv> docItems = DataHelper.GetEcpSignData();
+                    HostName = "192.168.0.25",
+                    UserName = "artisUser",
+                    Password = "250595",
+                    VirtualHost = "/",
+                    Port = 5672
+                };
 
-                    var factory = new ConnectionFactory()
+                try {
+                    using (var connection = factory.CreateConnection())
+                    using (var channel = connection.CreateModel())
                     {
-                        HostName = "192.168.0.25",
-                        UserName = "artisUser",
-                        Password = "250595",
-                        VirtualHost = "/",
-                        Port = 5672
-                    };
+                        channel.ExchangeDeclare(exchange: "signData", type: ExchangeType.Direct, autoDelete: true);
 
-                    if (docItems != null && docItems.Count > 0)
-                    {
-                        using (var connection = factory.CreateConnection())
-                        using (var channel = connection.CreateModel())
+                        //отправляем всё в очередь
+                        foreach (EcpSignData_pv item in docItems)
                         {
-                            channel.ExchangeDeclare(exchange: "signData", type: ExchangeType.Direct, autoDelete: true);
+                            var body = Encoding.UTF8.GetBytes(Newtonsoft.Json.JsonConvert.SerializeObject(item));
 
-                            foreach (EcpSignData_pv item in docItems)
-                            {
-                                var body = Encoding.UTF8.GetBytes(Newtonsoft.Json.JsonConvert.SerializeObject(item));
+                            channel.BasicPublish(exchange: "signData",
+                                                 routingKey: routingKeyJson,
+                                                 basicProperties: null,
+                                                 body: body);
 
-                                channel.BasicPublish(exchange: "signData",
-                                                     routingKey: routingKeyJson,
-                                                     basicProperties: null,
-                                                     body: body);
-
-                                Console.WriteLine($"Document [{item.pv_id}] send to [{routingKeyJson}] N{counter++}");
-                                Thread.Sleep(1);
-                            }
+                            Console.WriteLine($"Document [{item.pv_id}] send to [{routingKeyJson}] N{counter++}");
                         }
                     }
 
-                    Thread.Sleep(600000);
-                } while (true);
-            };
-        }
+                    LogHelper.WriteLog($"Sended document count: {counter}");
+                }
+                catch (Exception ex) {
+                    LogHelper.WriteLog($"Exception: {ex.Message}");
+                }                
+            }
 
+            LogHelper.WriteLog("Robot1 work end.");
+        }
     }
 }
