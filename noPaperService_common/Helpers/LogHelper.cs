@@ -43,7 +43,14 @@ namespace noPaperService_common.Helpers
         {
             init();
 
-            try { File.AppendAllText($"{logPath}\\Log_{DateTime.Now.ToString("yyyy_MM_dd")}.txt", $"{DateTime.Now} - {text}\n"); }
+            try {
+                if (text.Length == 0) {
+                    File.AppendAllText($"{logPath}\\Log_{DateTime.Now.ToString("yyyy_MM_dd")}.txt", $"\n");
+                }
+                else {
+                    File.AppendAllText($"{logPath}\\Log_{DateTime.Now.ToString("yyyy_MM_dd")}.txt", $"{DateTime.Now} - {text}\n");
+                }                
+            }
             catch { }
         }
     }

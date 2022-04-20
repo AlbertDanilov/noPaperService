@@ -1,10 +1,13 @@
 ﻿using Newtonsoft.Json;
+using noPaperService_common.Const;
 using noPaperService_common.Entities;
 using noPaperService_common.Helpers;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 
@@ -12,6 +15,13 @@ namespace noPaperAPI_robot3
 {
     class Program
     {
+        [DllImport("user32.dll")]
+        static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+        [DllImport("kernel32.dll")]
+        static extern IntPtr GetConsoleWindow();
+
+
         static void Main(string[] args)
         {
             /*
@@ -20,6 +30,12 @@ namespace noPaperAPI_robot3
             3. Отправляем информацию о подписывании на 0.35 (ставим отметку signed в таблице pri_voz_worked_out)
             */
 
+            //скрыть консоль
+            var handle = GetConsoleWindow();
+            ShowWindow(handle, ViewConst.SW_Min);
+
+            LogHelper.RemoveOldLog();
+
             String jsonPath = "C:\\Rsklad.Documents\\JSON";
             String p7sPath = "C:\\Rsklad.Documents\\P7S";
 
@@ -27,7 +43,9 @@ namespace noPaperAPI_robot3
             Directory.CreateDirectory("C:\\Rsklad.Documents\\JSON");
             Directory.CreateDirectory("C:\\Rsklad.Documents\\P7S");
 
-            Console.WriteLine($"Robot3 run (save documents and signs to store)");
+            string t = $"Robot3 run (save documents and signs to store)";
+            Console.WriteLine(t);
+            LogHelper.WriteLog(t);
             Console.WriteLine("");
 
             var factory = new ConnectionFactory()
@@ -44,69 +62,100 @@ namespace noPaperAPI_robot3
 
             string routingKeyJson = "json";
             string routingKeyP7s = "p7s";
+            string routingKeySigned = "signedIds";
 
-            using (var connection = factory.CreateConnection())
-            using (var channel = connection.CreateModel())
+            try
             {
-                channel.ExchangeDeclare(exchange: "signData", type: ExchangeType.Direct, autoDelete: true);
-
-                var queueName = channel.QueueDeclare().QueueName;
-
-                channel.QueueBind(queue: queueName,
-                                  exchange: "signData",
-                                  routingKey: routingKeyJson);
-
-                channel.QueueBind(queue: queueName,
-                                  exchange: "signData",
-                                  routingKey: routingKeyP7s);
-
-                var consumer = new EventingBasicConsumer(channel);
-
-                consumer.Received += (sender, e) =>
+                using (var connection = factory.CreateConnection())
+                using (var channel = connection.CreateModel())
                 {
-                    try
-                    {
-                        var body = e.Body;
+                    channel.ExchangeDeclare(exchange: "signData", type: ExchangeType.Direct, autoDelete: false);
 
-                        switch (e.RoutingKey)
+                    var queueName = channel.QueueDeclare().QueueName;
+
+                    channel.QueueBind(queue: queueName,
+                                      exchange: "signData",
+                                      routingKey: routingKeyJson);
+
+                    channel.QueueBind(queue: queueName,
+                                      exchange: "signData",
+                                      routingKey: routingKeyP7s);
+
+                    var consumer = new EventingBasicConsumer(channel);
+
+                    consumer.Received += (sender, e) =>
+                    {
+                        try
                         {
-                            case "json":
-                                //получаем
-                                var message = Encoding.UTF8.GetString(body.ToArray());
+                            var body = e.Body;
 
-                                //конвертируем
-                                EcpSignData_pv doc = JsonConvert.DeserializeObject<EcpSignData_pv>(message);
-                                Console.WriteLine($"Received document [{doc.pv_id}] N{counterJson++}");
+                            switch (e.RoutingKey)
+                            {
+                                case "json":
+                                    //получаем
+                                    var message = Encoding.UTF8.GetString(body.ToArray());
 
-                                //сохраняем
-                                File.WriteAllText(jsonPath + $"\\{doc.pv_id}.json", message);
-                                break;
+                                    //конвертируем
+                                    EcpSignData_pv doc = JsonConvert.DeserializeObject<EcpSignData_pv>(message);
+                                    Console.WriteLine($"Received document [{doc.pv_id}] N{counterJson++}");
 
-                            case "p7s":
-                                //получаем, конвертируем
-                                EcpSignData_p7s signData = FormatHelper.FromByteArray<EcpSignData_p7s>(body.ToArray());
-                                Console.WriteLine($"Received document [{signData.pv_id}] N{counterP7s++}");
+                                    //сохраняем
+                                    File.WriteAllText(jsonPath + $"\\{doc.pv_id}.json", message);
+                                    break;
 
-                                //сохраняем
-                                File.WriteAllBytes(p7sPath + $"\\{signData.pv_id}.p7s", signData.sign);
-                                break;
+                                case "p7s":
+                                    //получаем, конвертируем
+                                    EcpSignData_p7s signData = FormatHelper.FromByteArray<EcpSignData_p7s>(body.ToArray());
+
+                                    if (signData != null && signData.sign.Length > 0)
+                                    {
+                                        Console.WriteLine($"Received document [{signData.pv_id}] N{counterP7s++}");
+
+                                        //сохраняем
+                                        File.WriteAllBytes(p7sPath + $"\\{signData.pv_id}.p7s", signData.sign);
+
+                                        //отправляем id в очередь
+                                        byte[] idBody = BitConverter.GetBytes(signData.pv_id);
+
+                                        channel.BasicPublish(exchange: "signData",
+                                                             routingKey: routingKeySigned,
+                                                             basicProperties: null,
+                                                             body: idBody);
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine($"signData is null or Length = 0");
+                                        LogHelper.WriteLog($"signData is null or Length = 0");
+                                    }
+                                    break;
+                            }
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        //добавить логгер
-                    }
-                };
+                        catch (Exception ex)
+                        {
+                            LogHelper.WriteLog($"Received Exception: {ex.Message}");
+                        }
+                    };
 
-                channel.BasicConsume(queue: queueName,
-                                     autoAck: true,
-                                     consumer: consumer);
+                    LogHelper.WriteLog($"Received json count: {counterJson}");
+                    LogHelper.WriteLog($"Received p7s count: {counterP7s}");
 
-                Console.WriteLine($"Subscribed to the queue JSON '{queueName}'");
-                Console.WriteLine($"Subscribed to the queue P7S '{queueName}'");
+                    channel.BasicConsume(queue: queueName,
+                                         autoAck: true,
+                                         consumer: consumer);
 
-                Console.ReadLine();
+                    Console.WriteLine($"Subscribed to the queue JSON '{queueName}'");
+                    Console.WriteLine($"Subscribed to the queue P7S '{queueName}'");
 
+                    Console.ReadLine();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.WriteLog($"Exception: {ex.Message}");
+            }
+            finally {
+                LogHelper.WriteLog("Robot3 work end.");
+                LogHelper.WriteLog("");
             }
         }
     }

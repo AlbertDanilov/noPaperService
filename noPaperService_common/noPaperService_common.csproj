@@ -58,6 +58,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Const\ViewConst.cs" />
     <Compile Include="Entities\CertComponent.cs" />
     <Compile Include="Entities\EcpSignData_p7s.cs" />
     <Compile Include="Entities\EcpSignData_pv.cs" />
@@ -65,6 +66,7 @@
     <Compile Include="Entities\EcpSignData_ttns.cs" />
     <Compile Include="Entities\ReturnData.cs" />
     <Compile Include="Entities\SignComponent.cs" />
+    <Compile Include="Helpers\DataHelper.cs" />
     <Compile Include="Helpers\FormatHelper.cs" />
     <Compile Include="Helpers\LogHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

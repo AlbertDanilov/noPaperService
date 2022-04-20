@@ -12,26 +12,39 @@ namespace noPaperService_common.Helpers
     {
         public static byte[] ToByteArray<T>(T obj)
         {
-            if (obj == null)
-                return null;
-            BinaryFormatter bf = new BinaryFormatter();
-            using (MemoryStream ms = new MemoryStream())
-            {
-                bf.Serialize(ms, obj);
-                return ms.ToArray();
+            try {
+                if (obj == null)
+                    return null;
+                BinaryFormatter bf = new BinaryFormatter();
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    bf.Serialize(ms, obj);
+                    return ms.ToArray();
+                }
             }
+            catch (Exception ex) {
+                LogHelper.WriteLog($"ToByteArray Exception: {ex.Message}");
+                return null;
+            }            
         }
 
         public static T FromByteArray<T>(byte[] data)
         {
-            if (data == null)
-                return default(T);
-            BinaryFormatter bf = new BinaryFormatter();
-            using (MemoryStream ms = new MemoryStream(data))
-            {
-                object obj = bf.Deserialize(ms);
-                return (T)obj;
+            try {
+                if (data == null)
+                    return default(T);
+                BinaryFormatter bf = new BinaryFormatter();
+                using (MemoryStream ms = new MemoryStream(data))
+                {
+                    object obj = bf.Deserialize(ms);
+                    return (T)obj;
+                }
             }
+            catch (Exception ex)
+            {
+                LogHelper.WriteLog($"FromByteArray Exception: {ex.Message}");
+                return default(T);
+            }            
         }
     }
 }

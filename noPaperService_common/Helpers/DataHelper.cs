@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using noPaperService_common.Entities;
+﻿using noPaperService_common.Entities;
 using noPaperService_common.Helpers;
 using System;
 using System.Collections.Generic;
@@ -9,9 +8,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace noPaperAPI_robot1.DAL.Helpers
+namespace noPaperAPI_common.Helpers
 {
-    class DataHelper
+    public class DataHelper
     {
         private static string ConnectionSting = "Data Source=192.168.0.35;Initial Catalog=rsklad;User ID=sa;Password=r12sql141007";
 
@@ -37,10 +36,11 @@ namespace noPaperAPI_robot1.DAL.Helpers
                         }
                     }
                 }
+                LogHelper.WriteLog($"DOCS_ECP_SIGN_DATA_GET_ALL, rows.count = {dt.Rows.Count}");
             }
             catch (Exception ex)
             {
-                LogHelper.WriteLog($"Exception: {ex.Message}");
+                LogHelper.WriteLog($"GetEcpSignData Exception: {ex.Message}");
                 return null;
             }
 
@@ -163,6 +163,61 @@ namespace noPaperAPI_robot1.DAL.Helpers
             }
 
             return docItems;
+        }
+
+        public static void sendedSet(List<long> sendedIds) 
+        {
+            LogHelper.WriteLog("sendedSet");
+
+            DataTable dt = new DataTable("T");
+            dt.Columns.Add("pv_id", typeof(long));
+
+            foreach(long id in sendedIds)
+            {
+                dt.Rows.Add(id);
+            }
+
+            try {
+                using (var con = new SqlConnection(ConnectionSting))
+                using (var cmd = new SqlCommand("", con))
+                {
+                    con.Open();
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.CommandText = "DOCS_ECP_SENDED_SET";
+                    cmd.Parameters.Clear();
+                    cmd.Parameters.AddWithValue("dt", dt);
+                    cmd.ExecuteNonQuery();
+                    con.Close();
+                }
+                LogHelper.WriteLog($"sendedSet, count = {sendedIds.Count}");
+            }
+            catch (Exception ex) {
+                LogHelper.WriteLog($"sendedSet Exception: {ex.Message}");
+            }
+        }
+
+        public static void signedSet(long signedId)
+        {
+            LogHelper.WriteLog($"signedSet = {signedId}");
+
+            try
+            {
+                using (var con = new SqlConnection(ConnectionSting))
+                using (var cmd = new SqlCommand("", con))
+                {
+                    con.Open();
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.CommandText = "DOCS_ECP_SIGNED_SET";
+                    cmd.Parameters.Clear();
+                    cmd.Parameters.AddWithValue("pv_id", signedId);
+                    cmd.ExecuteNonQuery();
+                    con.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.WriteLog($"signedSet Exception: {ex.Message}");
+            }
         }
     }
 }
