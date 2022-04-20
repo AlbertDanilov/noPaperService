@@ -404,6 +404,9 @@ Public Class X509
                 End Try
             End Function
             Public Shared Function verifySignature(ByVal encodedSignedCms As Byte()) As ReturnData
+
+                Dim msg As String = ""
+
                 ' Проверка корректности переданных параметров.
                 If encodedSignedCms Is Nothing Then Return New ReturnData(False, Nothing, "На входе Nothing.")
                 ' Объект, в котором будут происходить декодирование и проверка.
@@ -462,18 +465,24 @@ Public Class X509
                 End While
 
                 Console.WriteLine()
+                Dim rez As String = ""
+
                 If valid Then
-                    Console.WriteLine("Проверка PKCS #7 сообщения завершилась успешно.")
+                    rez = "Проверка PKCS #7 сообщения завершилась успешно."
+                    Console.WriteLine(rez)
                 Else
-                    Console.WriteLine(
-                        "Проверка PKCS #7 сообщения завершилась неудачно." &
-                        "Возможно сообщение, одна из подписей, или соподписей " &
-                        "модифицированы в процессе передачи или хранения. " &
-                        "Возможно, что не корректен или подменен один из " &
-                        "сертификатов подписывающих. Возможно подписывающий " &
-                        "не имеет соответствующих атрибутов для подписи. " &
-                        "Достоверность и/или целостность сообщения не гарантируется.")
+                    rez = "Проверка PKCS #7 сообщения завершилась неудачно." &
+                          "Возможно сообщение, одна из подписей, или соподписей " &
+                          "модифицированы в процессе передачи или хранения. " &
+                          "Возможно, что не корректен или подменен один из " &
+                          "сертификатов подписывающих. Возможно подписывающий " &
+                          "не имеет соответствующих атрибутов для подписи. " &
+                          "Достоверность и/или целостность сообщения не гарантируется."
+                    Console.WriteLine(rez)
                 End If
+
+                Return New ReturnData(valid, Nothing, rez)
+
             End Function
         End Class
     End Class

@@ -45,10 +45,10 @@ namespace noPaperService_common.Helpers
 
             try {
                 if (text.Length == 0) {
-                    File.AppendAllText($"{logPath}\\Log_{DateTime.Now.ToString("yyyy_MM_dd")}.txt", $"\n");
+                    File.AppendAllText($"{logPath}\\Log_{DateTime.Now.ToString("yyyy_MM_dd")}.txt", $"{Environment.NewLine}");
                 }
                 else {
-                    File.AppendAllText($"{logPath}\\Log_{DateTime.Now.ToString("yyyy_MM_dd")}.txt", $"{DateTime.Now} - {text}\n");
+                    File.AppendAllText($"{logPath}\\Log_{DateTime.Now.ToString("yyyy_MM_dd")}.txt", $"{DateTime.Now} - {text}{Environment.NewLine}");
                 }                
             }
             catch { }
