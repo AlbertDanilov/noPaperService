@@ -31,6 +31,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "noPaperService_signedSetter
 		{D5FD0065-5111-435C-A668-DE43354F7AD9} = {D5FD0065-5111-435C-A668-DE43354F7AD9}
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "noPaperService_test", "noPaperService_test\noPaperService_test.csproj", "{D38BFB1B-D6E2-47CE-86DC-1841E0442FE9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{CA9C8264-246E-45ED-97E2-B01AA5FC3457} = {CA9C8264-246E-45ED-97E2-B01AA5FC3457}
+		{D5FD0065-5111-435C-A668-DE43354F7AD9} = {D5FD0065-5111-435C-A668-DE43354F7AD9}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,6 +67,10 @@ Global
 		{3DE6EB5E-762A-44C0-B327-082356C21085}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3DE6EB5E-762A-44C0-B327-082356C21085}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3DE6EB5E-762A-44C0-B327-082356C21085}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D38BFB1B-D6E2-47CE-86DC-1841E0442FE9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D38BFB1B-D6E2-47CE-86DC-1841E0442FE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D38BFB1B-D6E2-47CE-86DC-1841E0442FE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D38BFB1B-D6E2-47CE-86DC-1841E0442FE9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
