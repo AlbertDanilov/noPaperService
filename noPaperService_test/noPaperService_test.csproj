@@ -33,12 +33,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Aspose.Words, Version=22.4.0.0, Culture=neutral, PublicKeyToken=716fcc553a201e56, processorArchitecture=MSIL">
-      <HintPath>..\packages\Aspose.Words.22.4.0\lib\net461\Aspose.Words.dll</HintPath>
-    </Reference>
-    <Reference Include="Aspose.Words.Pdf2Word, Version=22.4.0.0, Culture=neutral, PublicKeyToken=716fcc553a201e56, processorArchitecture=MSIL">
-      <HintPath>..\packages\Aspose.Words.22.4.0\lib\net461\Aspose.Words.Pdf2Word.dll</HintPath>
-    </Reference>
     <Reference Include="noPaperService_common">
       <HintPath>..\noPaperService_common\bin\Debug\noPaperService_common.dll</HintPath>
     </Reference>
@@ -60,7 +54,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
