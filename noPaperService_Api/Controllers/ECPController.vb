@@ -9,9 +9,9 @@ Namespace Controllers
     Public Class ECPController
         Inherits ApiController
 
-        Dim mainPath = "D:\Rsklad.Documents"
+        Dim mainPath = "C:\Rsklad.Documents"
         Dim userPath = Environment.SpecialFolder.Personal
-        Dim savePath = "D:\Rsklad.Documents" '$"{userPath}\Downloads"
+        Dim savePath = "C:\Rsklad.Documents" '$"{userPath}\Downloads"
 
         'Верификация подписи QRCode
         <HttpGet>
@@ -84,7 +84,7 @@ Namespace Controllers
         <Route("api/GetInvoice")>
         Sub PrintPDF(pv_id As Integer)
             Try
-                Dim jsonFileNamePath = $"{mainPath}\JSON\{pv_id}.json" 'C:\Rsklad.Documents
+                Dim jsonFileNamePath = $"{mainPath}\JSON\{pv_id}.json"
                 Dim sign As Byte() = File.ReadAllBytes($"{mainPath}\P7S\{pv_id}.p7s")
                 Dim absoluteUrl = HttpContext.Current.Request.Url.Authority
                 'Dim signIden As String = $"{absoluteUrl}-"
