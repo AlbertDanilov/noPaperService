@@ -29,6 +29,15 @@ namespace noPaperService_common.Entities
         public Int32? pv_dlo_zayav_id { get; set; }
         public DateTime? pv_doing_date { get; set; }
         public Byte? pv_is_mark { get; set; }
+        public Int32? pv_work_program_id { get; set; }
+        public String pv_work_program_name { get; set; }
+        public String pv_otv_fio { get; set; }
+        public String pv_sklad_mol { get; set; }
+        public String pv_zay_zname { get; set; }
+        public DateTime? pv_zay_cdate { get; set; }
+        public String pv_reason { get; set; }
+        public DateTime? pv_dogovor_date { get; set; }
+        public String pv_dg_num { get; set; }
         public List<EcpSignData_pvs> pvsList { get; set; }
     }
 }

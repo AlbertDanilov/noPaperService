@@ -31,5 +31,9 @@ namespace noPaperService_common.Entities
         public Int32? ttns_zayav_type_id { get; set; }
         public Byte? ttns_fixed_rcena { get; set; }
         public Int16? ttns_temp_regim_id { get; set; }
+        public String ttns_sert_num { get; set; }
+        public DateTime? ttns_sert_date_po { get; set; }
+        public String ttns_ed_shortname { get; set; }
+        public String ttns_temp_regim_name { get; set; }
     }
 }

@@ -69,7 +69,16 @@ namespace noPaperAPI_common.Helpers
                                pv_zayav_id = d.Field<Int32?>("pv_zayav_id"),
                                pv_dlo_zayav_id = d.Field<Int32?>("pv_dlo_zayav_id"),
                                pv_doing_date = d.Field<DateTime?>("pv_doing_date"),
-                               pv_is_mark = d.Field<Byte?>("pv_is_mark")
+                               pv_is_mark = d.Field<Byte?>("pv_is_mark"),
+                               pv_work_program_id = d.Field<Int16?>("pv_work_program_id"),
+                               pv_work_program_name = d.Field<String>("pv_work_program_name"),
+                               pv_otv_fio = d.Field<String>("pv_otv_fio"),
+                               pv_sklad_mol = d.Field<String>("pv_sklad_mol"),
+                               pv_zay_zname = d.Field<String>("pv_zay_zname"),
+                               pv_zay_cdate = d.Field<DateTime?>("pv_zay_cdate"),
+                               pv_reason = d.Field<String>("pv_reason"),
+                               pv_dogovor_date = d.Field<DateTime?>("pv_dogovor_date"),
+                               pv_dg_num = d.Field<String>("pv_dg_num")
                            }).Select(ds => new EcpSignData_pv
                            {
                                pv_id = ds.Key.pv_id,
@@ -93,6 +102,15 @@ namespace noPaperAPI_common.Helpers
                                pv_dlo_zayav_id = ds.Key.pv_dlo_zayav_id,
                                pv_doing_date = ds.Key.pv_doing_date,
                                pv_is_mark = ds.Key.pv_is_mark,
+                               pv_work_program_id = ds.Key.pv_work_program_id,
+                               pv_work_program_name = ds.Key.pv_work_program_name,
+                               pv_otv_fio = ds.Key.pv_otv_fio,
+                               pv_sklad_mol = ds.Key.pv_sklad_mol,
+                               pv_zay_zname = ds.Key.pv_zay_zname,
+                               pv_zay_cdate = ds.Key.pv_zay_cdate,
+                               pv_reason = ds.Key.pv_reason,
+                               pv_dogovor_date = ds.Key.pv_dogovor_date,
+                               pv_dg_num = ds.Key.pv_dg_num,
                                pvsList = ds.GroupBy(dss => new
                                {
                                    pvs_id = dss.Field<Int64>("pvs_id"),
@@ -100,6 +118,13 @@ namespace noPaperAPI_common.Helpers
                                    pvs_tov_zap_id = dss.Field<Int64?>("pvs_tov_zap_id"),
                                    pvs_ttns_id = dss.Field<Int64?>("pvs_ttns_id"),
                                    pvs_kol_tov = dss.Field<Decimal?>("pvs_kol_tov"),
+                                   pvs_psum_bnds = dss.Field<Decimal?>("pvs_psum_bnds"),
+                                   pvs_rsum_nds = dss.Field<Decimal?>("pvs_rsum_nds"),
+                                   pvs_psum_nds = dss.Field<Decimal?>("pvs_psum_nds"),
+                                   pvs_pcena_bnds = dss.Field<Decimal?>("pvs_pcena_bnds"),
+                                   pvs_pcena_nds = dss.Field<Decimal?>("pvs_pcena_nds"),
+                                   pvs_ocena_nds = dss.Field<Decimal?>("pvs_ocena_nds"),
+                                   pvs_osum_nds = dss.Field<Decimal?>("pvs_osum_nds"),
                                    ttns_id = dss.Field<Int64>("ttns_id"),
                                    ttns_shifr_nom = dss.Field<Int32?>("ttns_shifr_nom"),
                                    ttns_shifr = dss.Field<String>("ttns_shifr"),
@@ -122,13 +147,24 @@ namespace noPaperAPI_common.Helpers
                                    ttns_dogovor_spec_id = dss.Field<Int64?>("ttns_dogovor_spec_id"),
                                    ttns_zayav_type_id = dss.Field<Int32?>("ttns_zayav_type_id"),
                                    ttns_fixed_rcena = dss.Field<Byte?>("ttns_fixed_rcena"),
-                                   ttns_temp_regim_id = dss.Field<Int16?>("ttns_temp_regim_id")
+                                   ttns_temp_regim_id = dss.Field<Int16?>("ttns_temp_regim_id"),
+                                   ttns_sert_num = dss.Field<String>("ttns_sert_num"),
+                                   ttns_sert_date_po = dss.Field<DateTime?>("ttns_sert_date_po"),
+                                   ttns_ed_shortname = dss.Field<String>("ttns_ed_shortname"),
+                                   ttns_temp_regim_name = dss.Field<String>("ttns_temp_regim_name")
                                }).Select(dss => new EcpSignData_pvs
                                {
                                    pvs_id = dss.Key.pvs_id,
                                    pvs_tov_zap_id = dss.Key.pvs_tov_zap_id,
                                    pvs_ttns_id = dss.Key.pvs_ttns_id,
                                    pvs_kol_tov = dss.Key.pvs_kol_tov,
+                                   pvs_psum_bnds = dss.Key.pvs_psum_bnds,
+                                   pvs_rsum_nds = dss.Key.pvs_rsum_nds,
+                                   pvs_psum_nds = dss.Key.pvs_psum_nds,
+                                   pvs_pcena_bnds = dss.Key.pvs_pcena_bnds,
+                                   pvs_pcena_nds = dss.Key.pvs_pcena_nds,
+                                   pvs_ocena_nds = dss.Key.pvs_ocena_nds,
+                                   pvs_osum_nds = dss.Key.pvs_osum_nds,
                                    ttnsInfo = new EcpSignData_ttns
                                    {
                                        ttns_id = dss.Key.ttns_id,
@@ -153,7 +189,11 @@ namespace noPaperAPI_common.Helpers
                                        ttns_dogovor_spec_id = dss.Key.ttns_dogovor_spec_id,
                                        ttns_zayav_type_id = dss.Key.ttns_zayav_type_id,
                                        ttns_fixed_rcena = dss.Key.ttns_fixed_rcena,
-                                       ttns_temp_regim_id = dss.Key.ttns_temp_regim_id
+                                       ttns_temp_regim_id = dss.Key.ttns_temp_regim_id,
+                                       ttns_sert_num = dss.Key.ttns_sert_num,
+                                       ttns_sert_date_po = dss.Key.ttns_sert_date_po,
+                                       ttns_ed_shortname = dss.Key.ttns_ed_shortname,
+                                       ttns_temp_regim_name = dss.Key.ttns_temp_regim_name,
                                    }
                                }).ToList()
                            }).ToList();
