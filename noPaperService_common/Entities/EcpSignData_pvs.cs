@@ -20,6 +20,7 @@ namespace noPaperService_common.Entities
         public Decimal? pvs_pcena_nds { get; set; }
         public Decimal? pvs_ocena_nds { get; set; }
         public Decimal? pvs_osum_nds { get; set; }
+        public String pvs_dg_num { get; set; }
         public EcpSignData_ttns ttnsInfo { get; set; }
     }
 }

@@ -32,6 +32,7 @@ namespace noPaperAPI_common.Helpers
                             da.SelectCommand.CommandType = CommandType.StoredProcedure;
                             da.SelectCommand.CommandText = "DOCS_ECP_SIGN_DATA_GET_ALL";
                             da.SelectCommand.Parameters.Clear();
+                            //da.SelectCommand.Parameters.AddWithValue("@pv_id", 1613003);
                             da.Fill(dt);
                         }
                     }
@@ -78,8 +79,7 @@ namespace noPaperAPI_common.Helpers
                                pv_zay_zname = d.Field<String>("pv_zay_zname"),
                                pv_zay_cdate = d.Field<DateTime?>("pv_zay_cdate"),
                                pv_reason = d.Field<String>("pv_reason"),
-                               pv_dogovor_date = d.Field<DateTime?>("pv_dogovor_date"),
-                               pv_dg_num = d.Field<String>("pv_dg_num")
+                               pv_dogovor_date = d.Field<DateTime?>("pv_dogovor_date")                               
                            }).Select(ds => new EcpSignData_pv
                            {
                                pv_id = ds.Key.pv_id,
@@ -111,8 +111,7 @@ namespace noPaperAPI_common.Helpers
                                pv_zay_zname = ds.Key.pv_zay_zname,
                                pv_zay_cdate = ds.Key.pv_zay_cdate,
                                pv_reason = ds.Key.pv_reason,
-                               pv_dogovor_date = ds.Key.pv_dogovor_date,
-                               pv_dg_num = ds.Key.pv_dg_num,
+                               pv_dogovor_date = ds.Key.pv_dogovor_date,                               
                                pvsList = ds.GroupBy(dss => new
                                {
                                    pvs_id = dss.Field<Int64>("pvs_id"),
@@ -153,7 +152,8 @@ namespace noPaperAPI_common.Helpers
                                    ttns_sert_num = dss.Field<String>("ttns_sert_num"),
                                    ttns_sert_date_po = dss.Field<DateTime?>("ttns_sert_date_po"),
                                    ttns_ed_shortname = dss.Field<String>("ttns_ed_shortname"),
-                                   ttns_temp_regim_name = dss.Field<String>("ttns_temp_regim_name")
+                                   ttns_temp_regim_name = dss.Field<String>("ttns_temp_regim_name"),
+                                   pvs_dg_num = dss.Field<String>("pvs_dg_num")
                                }).Select(dss => new EcpSignData_pvs
                                {
                                    pvs_id = dss.Key.pvs_id,
@@ -167,6 +167,7 @@ namespace noPaperAPI_common.Helpers
                                    pvs_pcena_nds = dss.Key.pvs_pcena_nds,
                                    pvs_ocena_nds = dss.Key.pvs_ocena_nds,
                                    pvs_osum_nds = dss.Key.pvs_osum_nds,
+                                   pvs_dg_num = dss.Key.pvs_dg_num,
                                    ttnsInfo = new EcpSignData_ttns
                                    {
                                        ttns_id = dss.Key.ttns_id,

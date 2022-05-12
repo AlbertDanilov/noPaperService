@@ -37,8 +37,7 @@ namespace noPaperService_common.Entities
         public String pv_zay_zname { get; set; }
         public DateTime? pv_zay_cdate { get; set; }
         public String pv_reason { get; set; }
-        public DateTime? pv_dogovor_date { get; set; }
-        public String pv_dg_num { get; set; }
+        public DateTime? pv_dogovor_date { get; set; }        
         public List<EcpSignData_pvs> pvsList { get; set; }
     }
 }
