@@ -159,7 +159,7 @@ Namespace CreateStamps
             'Высота холста
             Dim myBMPHeight As Integer = 80
             'Ширина холста
-            Dim myBMPWidth As Integer = 1300
+            Dim myBMPWidth As Integer = 620
             'Создаем холст для рисования
             Dim myBMP As New Bitmap(myBMPWidth, myBMPHeight, Imaging.PixelFormat.Format32bppArgb)
 

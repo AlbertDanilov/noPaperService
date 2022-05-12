@@ -174,9 +174,9 @@ Public Class LayoutStamps
 #Region "подпись на каждой странице(кроме последней) только для контракта"
                                     Dim imagetext As iTextSharp.text.Image
                                     Try
-                                        imagetext = iTextSharp.text.Image.GetInstance(CreateStamps.CreateStamps.ImageToBytes(CreateStamps.CreateStamps.GetStringStamp("Электронный документ подписан ЭП на электронной площадке", 26)))
-                                        imagetext.SetAbsolutePosition(220, 17)
-                                        imagetext.ScaleAbsolute(330, 15)
+                                        imagetext = iTextSharp.text.Image.GetInstance(CreateStamps.CreateStamps.ImageToBytes(CreateStamps.CreateStamps.GetStringStamp("Электронный документ подписан ЭП", 26)))
+                                        imagetext.SetAbsolutePosition(440, 17) '220
+                                        imagetext.ScaleAbsolute(140, 15) '330
                                         For index = 1 To reader.NumberOfPages - 1
                                             Dim pdfcontent = stamper.GetOverContent(index)
                                             pdfcontent.AddImage(imagetext)
@@ -203,7 +203,7 @@ Public Class LayoutStamps
                                     Dim newWidth As Integer
                                     Dim newHeight As Integer
                                     Dim isNewPage As Boolean
-                                    If maxHeightPage > lastElemHeight + 280 Then
+                                    If maxHeightPage > lastElemHeight + 280 - 100 Then
                                         newWidth = 17
                                         newHeight = 17
                                         isNewPage = False

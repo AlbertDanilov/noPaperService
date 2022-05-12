@@ -137,12 +137,16 @@ Namespace Controllers
                 Print.PrintExcel(mainPath, jsonFileNamePath, docFileName, docFileNamePath, docTemplateFileNamePath, docFileNamePathExtension)
                 Dim pdfByte = LayoutStamps.LayoutStampsExcel(savePath, docFileName, sign, docFileNamePathExtension, signIden)
 
-                Dim response As HttpResponseMessage = New HttpResponseMessage(HttpStatusCode.OK) With {
+                Dim response As New HttpResponseMessage(HttpStatusCode.OK) With {
                     .Content = New ByteArrayContent(pdfByte)
                 }
                 Return response
             Catch ex As Exception
-                Throw ex
+                Dim response As New HttpResponseMessage(HttpStatusCode.InternalServerError) With {
+                    .Content = New StringContent(ex.Message)
+                }
+                Dim r = New HttpResponseException(response)
+                Throw r
             End Try
         End Function
     End Class

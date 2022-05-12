@@ -75,6 +75,7 @@ Public Class Print
             Dim pageBreak As Integer = 35
             Dim pageLenght As Integer = 88
             Dim pageLenghtSum As Integer = 88
+            Dim pageLenghtRow As Integer = 79
 
             Dim allSumOptBnds As Decimal = 0
             Dim allSumRoznNds As Decimal = 0
@@ -95,7 +96,7 @@ Public Class Print
                 prim = ""
             ElseIf pv.pv_work_program_id = CSKLAD.c_WORK_PROG_RODSERT Then
                 zayTypeS = "Заявка № "
-                'prim = pv.pv_doc_zay_lpu
+                prim = pv.pv_zay_lpu
             ElseIf pv.pv_work_program_id = CSKLAD.c_WORK_PROG_ONLS Then
                 zayTypeS = "Заявка № "
                 prim = ""
@@ -104,17 +105,17 @@ Public Class Print
                 prim = ""
             ElseIf pv.pv_work_program_id = CSKLAD.c_WORK_PROG_SPEC_PROG Then
                 zayTypeS = ""
-                'prim = pv.pv_doc_zay_lpu
+                prim = pv.pv_zay_lpu
             ElseIf pv.pv_work_program_id = CSKLAD.c_WORK_PROG_10ST Then
                 zayTypeS = "Заявка № "
-                If pv.pv_sklad_name = "МЗ РФ 3" Then ''iid надо сделать
+                If pv.pv_sklad_iname = "МЗ РФ 3" Then
                     prim = "Гос. контракт № 12-216 от 14.08.2012 г."
                 Else
-                    'prim = pv.pv_doc_zay_lpu
+                    prim = pv.pv_zay_lpu
                 End If
             Else
                 zayTypeS = "Заявка № "
-                'prim = pv.pv_doc_zay_lpu
+                prim = pv.pv_zay_lpu
             End If
 
             If pv.pv_zay_zname IsNot String.Empty Then
@@ -153,7 +154,7 @@ Public Class Print
                 ws.Range("AB19").Value = pv.pv_otr_date.Value.ToString("dd.MM.yyyy")
                 ws.Range("AH19").Value = pv.pv_otg_date.Value.ToString("dd.MM.yyyy")
 
-                ws.Range("K12").Value = osnName
+                ws.Range("I12").Value = osnName
 
                 ws.Range("G21").Value = pv.pv_otv_fio
                 ws.Range("G22").Value = prim
@@ -162,7 +163,9 @@ Public Class Print
                     ws.Range($"A{rowIndexPaste}").Value = k
 
                     ws.Range($"D{rowIndexPaste}").Value = pvs.ttnsInfo.ttns_shifr
-                    'ws.Range($"I{rowIndexPaste}").Value = pvs.pvs_dg_num
+                    ws.Range($"I{rowIndexPaste}").Value = pvs.pvs_dg_num
+
+                    ws.Range($"D{rowIndexPaste + 1}").Value = $"{pvs.ttnsInfo.ttns_sert_num}, {pvs.ttnsInfo.ttns_sert_date_po.Value:dd.MM.yyyy}"
 
                     ws.Range($"W{rowIndexPaste}").Value = If(pvs.ttnsInfo.ttns_p_name_s, pvs.ttnsInfo.ttns_nommodif)
 
@@ -198,17 +201,20 @@ Public Class Print
 
                         If rowIndexPaste + rowIndexSum > pageLenght Then
                             pageLenght += pageLenghtSum
+                            pageLenghtRow += pageLenghtSum
                             ws.HorizontalPageBreaks.Add(rowIndexPaste - 1)
                         End If
                     End If
                 Next
 
                 Dim cellrng As CellRange = ws.Range("ROW_LIST")
-                If cellrng.BottomRowIndex >= pageLenght Then
+                If cellrng.BottomRowIndex >= pageLenghtRow Then
                     ws.HorizontalPageBreaks.Add(cellrng.BottomRowIndex - pageBreak)
                 End If
 
                 ws.Range("OTPUSK_PRODUCE").Value = pv.pv_sklad_mol
+
+                Dim d = cellrng.BottomRowIndex - ws.Range("ITOGO").BottomRowIndex + 1 'pageBreak
 
                 ws.Range("ITOGO").Value = $"ИТОГО ПО ТТН № {pv.pv_nom}/ {pv.pv_sklad_name} ОТ {pv.pv_otr_date.Value:dd.MM.yyyy} отгр {pv.pv_otg_date.Value:dd.MM.yyyy}"
 
