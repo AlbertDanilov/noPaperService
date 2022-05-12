@@ -277,7 +277,7 @@ Public Class X509
                 Return True
             End Function
 
-            Public Shared Function fullVreify(ByVal msg As Byte(),
+            Public Shared Function fullVerify(ByVal msg As Byte(),
                                               ByVal signature As Byte()) As Integer
                 ' Создаем объект ContentInfo по сообщению.
                 ' Это необходимо для создания объекта SignedCms.
@@ -302,6 +302,7 @@ Public Class X509
                         current.CheckSignature(False)
                     Catch e As System.Security.Cryptography.CryptographicException
                         valid = False
+                        Throw New ArgumentException(e.Message)
                     End Try
                     ' При наличии соподписей проверяем соподписи.
                     If current.CounterSignerInfos.Count > 0 Then
@@ -317,6 +318,7 @@ Public Class X509
                                 cosigner.CheckSignature(False)
                             Catch e As System.Security.Cryptography.CryptographicException
                                 valid = False
+                                Throw New ArgumentException(e.Message)
                             End Try
                         End While
                     End If

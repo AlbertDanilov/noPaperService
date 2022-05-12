@@ -1,4 +1,5 @@
 ﻿Imports System.IO
+Imports System.Net
 Imports System.Net.Http
 Imports System.Net.Http.Headers
 Imports System.Web.Http
@@ -41,19 +42,27 @@ Namespace Controllers
                 'проверяем валидность подписи
                 Dim valid As Boolean = X509.PKCS_7.Detached.Verify(signedFile, sign)
 
-                'полная првоерка валидности подписи
-                Dim ver As Integer = X509.PKCS_7.Detached.fullVreify(signedFile, sign)
-
-                If (ver = 0) Then
-                    headerText = "ДОКУМЕНТ НЕ ПОДПИСАН"
-                    headerColor = "black"
-                ElseIf (ver = 1) Then
+                If (valid = True) Then
                     headerText = "ПОДЛИННОСТЬ ЭЛЕКТРОННОЙ ЦИФРОВОЙ ПОДПИСИ ПОДТВЕРЖДЕНА"
                     headerColor = "019D69"
-                ElseIf (ver = -1) Then
+                ElseIf (valid = False) Then
                     headerText = "ПОДЛИННОСТЬ ЭЛЕКТРОННОЙ ЦИФРОВОЙ ПОДПИСИ НЕ ПОДТВЕРЖДЕНА"
                     headerColor = "red"
                 End If
+
+                'полная првоерка валидности подписи
+                'Dim ver As Integer = X509.PKCS_7.Detached.fullVerify(signedFile, sign)
+
+                'If (ver = 0) Then
+                '    headerText = "ДОКУМЕНТ НЕ ПОДПИСАН"
+                '    headerColor = "black"
+                'ElseIf (ver = 1) Then
+                '    headerText = "ПОДЛИННОСТЬ ЭЛЕКТРОННОЙ ЦИФРОВОЙ ПОДПИСИ ПОДТВЕРЖДЕНА"
+                '    headerColor = "019D69"
+                'ElseIf (ver = -1) Then
+                '    headerText = "ПОДЛИННОСТЬ ЭЛЕКТРОННОЙ ЦИФРОВОЙ ПОДПИСИ НЕ ПОДТВЕРЖДЕНА"
+                '    headerColor = "red"
+                'End If
 
                 For Each signComponent As SignComponent In CreateStamps.CreateStamps.GetSigners(sign)
 
@@ -79,15 +88,14 @@ Namespace Controllers
             Return response
         End Function
 
-        'Печать ПДФ со штампами
+        'Печать ПДФ со штампами ВОРД
         <HttpGet>
-        <Route("api/GetInvoice")>
-        Sub PrintPDF(pv_id As Integer)
+        <Route("api/GetInvoiceDoc")>
+        Function PrintPDF(pv_id As Integer)
             Try
                 Dim jsonFileNamePath = $"{mainPath}\JSON\{pv_id}.json"
                 Dim sign As Byte() = File.ReadAllBytes($"{mainPath}\P7S\{pv_id}.p7s")
                 Dim absoluteUrl = HttpContext.Current.Request.Url.Authority
-                'Dim signIden As String = $"{absoluteUrl}-"
                 Dim signIden As String = $"http://{absoluteUrl}/ECP_API/api/GetEcp?pv_id={pv_id}-"
 
                 Dim signedFileByte As Byte() = File.ReadAllBytes(jsonFileNamePath)
@@ -97,14 +105,45 @@ Namespace Controllers
                 Dim docFileNamePath As String = String.Empty
                 Dim docFileName As String = String.Empty
 
-                PrintDoc.Print(mainPath, jsonFileNamePath, docFileName, docFileNamePath, docTemplateFileNamePath, docFileNamePathExtension)
-                Dim pdfPath = LayoutStamps.LayoutStamps(savePath, docFileName, sign, docFileNamePathExtension, signIden)
+                Print.PrintDoc(mainPath, jsonFileNamePath, docFileName, docFileNamePath, docTemplateFileNamePath, docFileNamePathExtension)
+                Dim pdfByte = LayoutStamps.LayoutStamps(savePath, docFileName, sign, docFileNamePathExtension, signIden)
 
-                'Dim homeController As New HomeController()
-                'homeController.Download(pdfPath)
+                Dim response As HttpResponseMessage = New HttpResponseMessage(HttpStatusCode.OK) With {
+                    .Content = New ByteArrayContent(pdfByte)
+                }
+                Return response
             Catch ex As Exception
                 Throw ex
             End Try
-        End Sub
+        End Function
+
+        'Печать ПДФ со штампами ЭКСЕЛЬ
+        <HttpGet>
+        <Route("api/GetInvoiceExcel")>
+        Function PrintExcelPDF(pv_id As Integer)
+            Try
+                Dim jsonFileNamePath = $"{mainPath}\JSON\{pv_id}.json"
+                Dim sign As Byte() = File.ReadAllBytes($"{mainPath}\P7S\{pv_id}.p7s")
+                Dim absoluteUrl = HttpContext.Current.Request.Url.Authority
+                Dim signIden As String = $"http://{absoluteUrl}/ECP_API/api/GetEcp?pv_id={pv_id}-"
+
+                Dim signedFileByte As Byte() = File.ReadAllBytes(jsonFileNamePath)
+
+                Dim docTemplateFileNamePath As String = $"{mainPath}\Накладная.xlsx"
+                Dim docFileNamePathExtension As String = String.Empty
+                Dim docFileNamePath As String = String.Empty
+                Dim docFileName As String = String.Empty
+
+                Print.PrintExcel(mainPath, jsonFileNamePath, docFileName, docFileNamePath, docTemplateFileNamePath, docFileNamePathExtension)
+                Dim pdfByte = LayoutStamps.LayoutStampsExcel(savePath, docFileName, sign, docFileNamePathExtension, signIden)
+
+                Dim response As HttpResponseMessage = New HttpResponseMessage(HttpStatusCode.OK) With {
+                    .Content = New ByteArrayContent(pdfByte)
+                }
+                Return response
+            Catch ex As Exception
+                Throw ex
+            End Try
+        End Function
     End Class
 End Namespace
