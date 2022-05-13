@@ -129,14 +129,14 @@ Namespace Controllers
                 Dim signIden As String
                 'Try
                 jsonFileNamePath = $"{mainPath}\JSON\{pv_id}.json"
-                    sign = File.ReadAllBytes($"{mainPath}\P7S\{pv_id}.p7s")
-                    absoluteUrl = HttpContext.Current.Request.Url.Authority
-                    signIden = $"http://{absoluteUrl}/ECP_API/api/GetEcp?pv_id={pv_id}-"
-                    'Catch ex As Exception
-                    '    Throw New Exception(CSKLAD.EXCEPTION.Json)
-                    'End Try
+                sign = File.ReadAllBytes($"{mainPath}\P7S\{pv_id}.p7s")
+                absoluteUrl = HttpContext.Current.Request.Url.Authority
+                signIden = $"http://{absoluteUrl}/ECP_API/api/GetEcp?pv_id={pv_id}-"
+                'Catch ex As Exception
+                '    Throw New Exception(CSKLAD.EXCEPTION.Json)
+                'End Try
 
-                    Dim signedFileByte As Byte() = File.ReadAllBytes(jsonFileNamePath)
+                Dim signedFileByte As Byte() = File.ReadAllBytes(jsonFileNamePath)
                 Dim docTemplateFileNamePath As String = $"{mainPath}\Накладная.xlsx"
                 Dim docFileNamePathExtension As String = String.Empty
                 Dim docFileNamePath As String = String.Empty
@@ -146,13 +146,13 @@ Namespace Controllers
                 Dim pdfByte = LayoutStamps.LayoutStampsExcel(savePath, docFileName, sign, docFileNamePathExtension, signIden)
 
                 Dim response As New HttpResponseMessage(HttpStatusCode.OK) With {
-                .Content = New ByteArrayContent(pdfByte)
-            }
+                    .Content = New ByteArrayContent(pdfByte)
+                }
                 Return response
             Catch ex As Exception
                 Dim response As New HttpResponseMessage(HttpStatusCode.InternalServerError) With {
-                .Content = New StringContent(ex.Message)
-            }
+                    .Content = New StringContent(ex.Message)
+                }
                 Dim r = New HttpResponseException(response)
                 Throw r
             End Try
