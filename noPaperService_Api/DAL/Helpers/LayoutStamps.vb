@@ -1,8 +1,9 @@
 ﻿Imports System.Drawing
 Imports System.IO
-Imports DevExpress.XtraRichEdit
 Imports DevExpress.Spreadsheet
+Imports DevExpress.XtraRichEdit
 Imports iTextSharp.text.pdf
+Imports noPaperService_Api.Helpers
 
 Public Class LayoutStamps
     Public Shared Function LayoutStamps(savePath As String, docFileName As String, sign As Byte(), docFileNamePathExtension As String, signIden As String)
@@ -138,15 +139,11 @@ Public Class LayoutStamps
 
         Dim pdfFileNamePathExtension = $"{savePath}\{docFileName}.pdf"
 
-        'Dim xlFileNamePathExtension = $"C:\Rsklad.Documents\Накладная.xlsx"
-        'Dim pdfFileNamePathExtension = "C:\Rsklad.Documents\Document_PDF.pdf"
-
         'Список для штампов
         Dim stampList As List(Of Bitmap)
         stampList = CreateStamps.CreateStamps.GetStamps(sign, signIden)
 
         Using workbook As New Workbook()
-            'Using pdfFileStream As New FileStream(pdfFileNamePathExtension, FileMode.Create)
             Using inputPdfStream As New MemoryStream
                 Dim mybytes As Byte()
 
@@ -173,17 +170,13 @@ Public Class LayoutStamps
 
 #Region "подпись на каждой странице(кроме последней) только для контракта"
                                     Dim imagetext As iTextSharp.text.Image
-                                    Try
-                                        imagetext = iTextSharp.text.Image.GetInstance(CreateStamps.CreateStamps.ImageToBytes(CreateStamps.CreateStamps.GetStringStamp("Электронный документ подписан ЭП", 26)))
-                                        imagetext.SetAbsolutePosition(440, 17) '220
-                                        imagetext.ScaleAbsolute(140, 15) '330
-                                        For index = 1 To reader.NumberOfPages - 1
-                                            Dim pdfcontent = stamper.GetOverContent(index)
-                                            pdfcontent.AddImage(imagetext)
-                                        Next
-                                    Catch ex As Exception
-                                        Throw ex
-                                    End Try
+                                    imagetext = iTextSharp.text.Image.GetInstance(CreateStamps.CreateStamps.ImageToBytes(CreateStamps.CreateStamps.GetStringStamp("Электронный документ подписан ЭП", 26)))
+                                    imagetext.SetAbsolutePosition(440, 17) '220
+                                    imagetext.ScaleAbsolute(140, 15) '330
+                                    For index = 1 To reader.NumberOfPages - 1
+                                        Dim pdfcontent = stamper.GetOverContent(index)
+                                        pdfcontent.AddImage(imagetext)
+                                    Next
 #End Region
 
 #Region "печать эцп"
@@ -194,11 +187,7 @@ Public Class LayoutStamps
                                     Dim maxHeightPage = lastPage.Height
                                     Dim maxVerticalHeightPage = 792
                                     Dim lastElemHeight As Integer
-                                    Try
-                                        lastElemHeight = finder.GetHeight()
-                                    Catch ex As Exception
-                                        Throw ex
-                                    End Try
+                                    lastElemHeight = finder.GetHeight()
 
                                     Dim newWidth As Integer
                                     Dim newHeight As Integer
@@ -211,11 +200,7 @@ Public Class LayoutStamps
                                         isNewPage = True
                                         Dim rectangle = reader.GetPageSize(1)
                                         stamper.InsertPage(reader.NumberOfPages + 1, rectangle)
-                                        Try
-                                            stamper.GetOverContent(reader.NumberOfPages - 1).AddImage(imagetext)
-                                        Catch ex As Exception
-                                            Throw ex
-                                        End Try
+                                        stamper.GetOverContent(reader.NumberOfPages - 1).AddImage(imagetext)
                                         newWidth = 17
                                         newHeight = maxVerticalHeightPage - (10 + 120)
                                     End If
@@ -258,7 +243,7 @@ Public Class LayoutStamps
                         pdfFile = File.ReadAllBytes(pdfFileNamePathExtension)
                         File.Delete(pdfFileNamePathExtension)
                     End If
-                    Throw ex
+                    'Throw New Exception(CSKLAD.EXCEPTION.LayoutStamp)
                 End Try
             End Using
         End Using

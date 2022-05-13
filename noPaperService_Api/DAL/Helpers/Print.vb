@@ -85,7 +85,7 @@ Public Class Print
 
             Dim ks As String
             Dim rs As Long
-            Dim pme_WPROG As New pme.WPROG
+            Dim sumToString As New noPaperService_common.Helpers.SumToString
 
             Dim zayTypeS As String = String.Empty
             Dim osnName As String = String.Empty
@@ -234,7 +234,7 @@ Public Class Print
                 If ks.Length = 1 Then
                     ks &= "0"
                 End If
-                ws.Range("SUM_OPT_TEXT").Value = pme_WPROG.sum_to_string(rs, CByte(ks))
+                ws.Range("SUM_OPT_TEXT").Value = sumToString.sum_to_string(rs, CByte(ks))
 
                 If allSumRoznNds.ToString.Replace(",", ".").Contains(".") Then
                     ks = allSumRoznNds.ToString.Replace(",", ".").Split(".")(1)
@@ -247,7 +247,8 @@ Public Class Print
                 If ks.Length = 1 Then
                     ks &= "0"
                 End If
-                ws.Range("SUM_ROZN_TEXT").Value = pme_WPROG.sum_to_string(rs, CByte(ks))
+
+                ws.Range("SUM_ROZN_TEXT").Value = sumToString.sum_to_string(rs, CByte(ks))
 
                 If allSumNdsRozn.ToString.Replace(",", ".").Contains(".") Then
                     ks = allSumNdsRozn.ToString.Replace(",", ".").Split(".")(1)
@@ -260,14 +261,15 @@ Public Class Print
                 If ks.Length = 1 Then
                     ks &= "0"
                 End If
-                ws.Range("SUM_NDS_TEXT").Value = pme_WPROG.sum_to_string(rs, CByte(ks))
+                ws.Range("SUM_NDS_TEXT").Value = sumToString.sum_to_string(rs, CByte(ks))
 
                 ws.Range("SUM_OPT").Value = allSumOptBnds
                 ws.Range("SUM_ROZN").Value = allSumRoznNds
                 ws.Range("SUM_NDS").Value = allSumNdsRozn
 
+                ws.Range("DATE1").Value = Date.Now.ToString("dd.MM.yyyy")
             Catch ex As Exception
-                Throw ex
+                'Throw New Exception(CSKLAD.EXCEPTION.PrintExcel)
             Finally
                 wb.EndUpdate()
             End Try
