@@ -3,6 +3,7 @@ Imports System.Net
 Imports System.Net.Http
 Imports System.Net.Http.Headers
 Imports System.Web.Http
+Imports DevExpress.Pdf
 Imports noPaperService_Api.Entities
 Imports noPaperService_Api.Helpers
 Imports noPaperService_ecpWorker
@@ -97,7 +98,7 @@ Namespace Controllers
                 Dim jsonFileNamePath = $"{mainPath}\JSON\{pv_id}.json"
                 Dim sign As Byte() = File.ReadAllBytes($"{mainPath}\P7S\{pv_id}.p7s")
                 Dim absoluteUrl = HttpContext.Current.Request.Url.Authority
-                Dim signIden As String = $"http://{absoluteUrl}/ECP_API/api/GetEcp?pv_id={pv_id}-"
+                Dim signIden As String = $"https://{absoluteUrl}/ECP_API/api/GetEcp?pv_id={pv_id}-"
 
                 Dim signedFileByte As Byte() = File.ReadAllBytes(jsonFileNamePath)
 
@@ -121,32 +122,88 @@ Namespace Controllers
         'Печать ПДФ со штампами ЭКСЕЛЬ
         <HttpGet>
         <Route("api/GetInvoiceExcel")>
-        Function PrintExcelPDF(pv_id As Integer)
+        Function PrintExcelPDF(jsonStringPV As String)
             Try
                 Dim jsonFileNamePath
                 Dim sign As Byte()
                 Dim absoluteUrl
                 Dim signIden As String
-                'Try
-                jsonFileNamePath = $"{mainPath}\JSON\{pv_id}.json"
-                sign = File.ReadAllBytes($"{mainPath}\P7S\{pv_id}.p7s")
-                absoluteUrl = HttpContext.Current.Request.Url.Authority
-                signIden = $"http://{absoluteUrl}/ECP_API/api/GetEcp?pv_id={pv_id}-"
-                'Catch ex As Exception
-                '    Throw New Exception(CSKLAD.EXCEPTION.Json)
-                'End Try
 
-                Dim signedFileByte As Byte() = File.ReadAllBytes(jsonFileNamePath)
-                Dim docTemplateFileNamePath As String = $"{mainPath}\Накладная.xlsx"
-                Dim docFileNamePathExtension As String = String.Empty
-                Dim docFileNamePath As String = String.Empty
-                Dim docFileName As String = String.Empty
+                Dim listPV = Utf8Json.JsonSerializer.Deserialize(Of List(Of Integer))(jsonStringPV)
+                Dim pdfByte = Nothing
+                Dim pdfFiles As New List(Of String)
+                Dim endFile As String = String.Empty
+                Dim okPV As New List(Of Integer)
+                Dim errorPV As New List(Of Integer)
+                Dim responseData As New ResponseData
+                Dim invoice As New Invoice
 
-                Print.PrintExcel(mainPath, jsonFileNamePath, docFileName, docFileNamePath, docTemplateFileNamePath, docFileNamePathExtension)
-                Dim pdfByte = LayoutStamps.LayoutStampsExcel(savePath, docFileName, sign, docFileNamePathExtension, signIden)
+                Using pdfDocumentProcessor As New PdfDocumentProcessor()
+                    Dim i = 0
+
+                    For Each pv_id As Integer In listPV
+                        Try
+                            jsonFileNamePath = $"{mainPath}\JSON\{pv_id}.json"
+                            sign = File.ReadAllBytes($"{mainPath}\P7S\{pv_id}.p7s")
+                            absoluteUrl = HttpContext.Current.Request.Url.Authority
+                            signIden = $"https://{absoluteUrl}/ECP_API/api/GetEcp?pv_id={pv_id}-"
+
+                            Dim signedFileByte As Byte() = File.ReadAllBytes(jsonFileNamePath)
+                            Dim docTemplateFileNamePath As String = $"{mainPath}\Накладная.xlsx"
+                            Dim docFileNamePathExtension As String = String.Empty
+                            Dim docFileNamePath As String = String.Empty
+                            Dim docFileName As String = String.Empty
+
+                            Print.PrintExcel(mainPath, jsonFileNamePath, docFileName, docFileNamePath, docTemplateFileNamePath, docFileNamePathExtension)
+                            LayoutStamps.LayoutStampsExcel(savePath, docFileName, sign, docFileNamePathExtension, signIden, pdfFiles)
+
+                            endFile = $"{savePath}\Накладные {jsonStringPV}.pdf"
+
+                            If listPV.Count = 1 Then
+                                endFile = pdfFiles(i)
+                            Else
+                                If i = 0 Then
+                                    pdfDocumentProcessor.CreateEmptyDocument(endFile)
+                                    pdfDocumentProcessor.AppendDocument(pdfFiles(i))
+                                Else
+                                    pdfDocumentProcessor.AppendDocument(pdfFiles(i))
+                                End If
+
+                                If File.Exists(pdfFiles(i)) Then
+                                    File.Delete(pdfFiles(i))
+                                End If
+                            End If
+
+                            okPV.Add(pv_id)
+
+                            i += 1
+                        Catch ex As Exception
+                            'Request
+                            'response
+                            errorPV.Add(pv_id)
+                            'responseData.IsError = True
+                            invoice.ErrorText &= ex.Message & vbNewLine
+                            'Throw New Exception(CSKLAD.EXCEPTION.Json)
+                        End Try
+                    Next
+                End Using
+
+                If endFile IsNot String.Empty Then pdfByte = File.ReadAllBytes(endFile)
+
+                invoice.OkPV = okPV
+                invoice.ErrorPV = errorPV
+                invoice.PdfByte = pdfByte
+
+                'responseData.Data = invoice
+
+                If File.Exists(endFile) Then
+                    File.Delete(endFile)
+                End If
+
+                Dim jsonResponse As String = Utf8Json.JsonSerializer.ToJsonString(invoice)
 
                 Dim response As New HttpResponseMessage(HttpStatusCode.OK) With {
-                    .Content = New ByteArrayContent(pdfByte)
+                    .Content = New StringContent(jsonResponse)
                 }
                 Return response
             Catch ex As Exception
@@ -158,4 +215,5 @@ Namespace Controllers
             End Try
         End Function
     End Class
+
 End Namespace

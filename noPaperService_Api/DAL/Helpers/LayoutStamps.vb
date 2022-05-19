@@ -134,8 +134,8 @@ Public Class LayoutStamps
         End Using
     End Function
 
-    Public Shared Function LayoutStampsExcel(savePath As String, docFileName As String, sign As Byte(), docFileNamePathExtension As String, signIden As String)
-        Dim pdfFile As Byte() = Nothing
+    Public Shared Function LayoutStampsExcel(savePath As String, docFileName As String, sign As Byte(), docFileNamePathExtension As String, signIden As String, pdfFiles As List(Of String))
+        'Dim pdfFile As Byte() = Nothing
 
         Dim pdfFileNamePathExtension = $"{savePath}\{docFileName}.pdf"
 
@@ -227,26 +227,27 @@ Public Class LayoutStamps
                             End Using
                         End Using
                     End Using
-                    pdfFile = File.ReadAllBytes(pdfFileNamePathExtension)
+                    'pdfFile = File.ReadAllBytes(pdfFileNamePathExtension)
+                    pdfFiles.Add(pdfFileNamePathExtension)
 
                     If File.Exists(docFileNamePathExtension) Then
                         File.Delete(docFileNamePathExtension)
                     End If
-                    If File.Exists(pdfFileNamePathExtension) Then
-                        File.Delete(pdfFileNamePathExtension)
-                    End If
+                    'If File.Exists(pdfFileNamePathExtension) Then
+                    '    File.Delete(pdfFileNamePathExtension)
+                    'End If
                 Catch ex As Exception
                     If File.Exists(docFileNamePathExtension) Then
                         File.Delete(docFileNamePathExtension)
                     End If
-                    If File.Exists(pdfFileNamePathExtension) Then
-                        pdfFile = File.ReadAllBytes(pdfFileNamePathExtension)
-                        File.Delete(pdfFileNamePathExtension)
-                    End If
+                    'If File.Exists(pdfFileNamePathExtension) Then
+                    '    pdfFile = File.ReadAllBytes(pdfFileNamePathExtension)
+                    '    File.Delete(pdfFileNamePathExtension)
+                    'End If
                     'Throw New Exception(CSKLAD.EXCEPTION.LayoutStamp)
                 End Try
             End Using
         End Using
-        Return pdfFile
+        Return pdfFiles
     End Function
 End Class

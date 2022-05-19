@@ -64,6 +64,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.Office.v21.2.Core.dll</HintPath>
     </Reference>
+    <Reference Include="DevExpress.Pdf.v21.2.Core, Version=21.2.6.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.Pdf.v21.2.Core.dll</HintPath>
+    </Reference>
     <Reference Include="DevExpress.RichEdit.v21.2.Core, Version=21.2.6.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\Program Files (x86)\DevExpress 21.2\Components\Bin\Framework\DevExpress.RichEdit.v21.2.Core.dll</HintPath>
@@ -200,6 +204,9 @@
       <Private>True</Private>
       <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
     </Reference>
+    <Reference Include="Utf8Json, Version=1.3.7.0, Culture=neutral, PublicKeyToken=8a73d3ba7e392e27, processorArchitecture=MSIL">
+      <HintPath>..\packages\Utf8Json.1.3.7\lib\net47\Utf8Json.dll</HintPath>
+    </Reference>
     <Reference Include="WebGrease">
       <Private>True</Private>
       <HintPath>..\packages\WebGrease.1.6.0\lib\WebGrease.dll</HintPath>
@@ -276,6 +283,8 @@
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.vb" />
     <Compile Include="Controllers\ECPController.vb" />
     <Compile Include="DAL\Entities\CertComponent.vb" />
+    <Compile Include="DAL\Entities\Invoice.vb" />
+    <Compile Include="DAL\Entities\ProgramEntities.vb" />
     <Compile Include="DAL\Entities\FilePathComponent.vb" />
     <Compile Include="DAL\Entities\SignComponent.vb" />
     <Compile Include="DAL\Helpers\CertComponent.vb" />
@@ -283,7 +292,7 @@
     <Compile Include="DAL\Helpers\FilePathComponent.vb" />
     <Compile Include="DAL\Helpers\LayoutStamps.vb" />
     <Compile Include="DAL\Helpers\Print.vb" />
-    <Compile Include="DAL\Helpers\CSKLAD.vb" />
+    <Compile Include="DAL\Entities\CSKLAD.vb" />
     <Compile Include="DAL\Helpers\SignComponent.vb" />
     <Compile Include="Global.asax.vb">
       <DependentUpon>Global.asax</DependentUpon>

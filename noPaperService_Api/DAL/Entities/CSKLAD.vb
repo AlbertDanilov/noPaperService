@@ -1,4 +1,4 @@
-﻿Namespace Helpers
+﻿Namespace Entities
     Public Class CSKLAD
 #Region "CONST_WORK_PROGRAMMS"
         Public Const c_WORK_PROG_ROZN As Integer = 1

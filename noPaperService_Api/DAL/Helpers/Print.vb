@@ -4,7 +4,7 @@ Imports DevExpress.Spreadsheet
 Imports DevExpress.XtraRichEdit
 Imports DevExpress.XtraRichEdit.API.Native
 Imports Newtonsoft.Json
-Imports noPaperService_Api.Helpers
+Imports noPaperService_Api.Entities
 
 Public Class Print
     Public Shared Function PrintDoc(mainPath As String, jsonFileNamePath As String, ByRef docFileName As String, ByRef docFileNamePath As String, docTemplateFileNamePath As String, ByRef docFileNamePathExtension As String)
@@ -62,7 +62,7 @@ Public Class Print
         Dim json As String = File.ReadAllText(jsonFileNamePath)
         Dim pv As noPaperService_common.Entities.EcpSignData_pv = JsonConvert.DeserializeObject(Of noPaperService_common.Entities.EcpSignData_pv)(json)
 
-        docFileName = $"Накладная {pv.pv_nom} от ({Date.Now:dd.MM.yyyy HH.mm.ss})"
+        docFileName = $"Накладная {pv.pv_nom} от {Date.Now:dd.MM.yyyy HH.mm.ss}"
         docFileNamePath = $"{mainPath}\{docFileName}"
         docFileNamePathExtension = $"{docFileNamePath}.xlsx"
 
@@ -70,8 +70,8 @@ Public Class Print
             wb.LoadDocument(docTemplateFileNamePath)
             Dim ws As Worksheet = wb.Worksheets(0)
             Dim rowIndexPaste As Integer = 27
-            Dim rowIndexFormat As Integer = 31
-            Dim rowIndexSum As Integer = 4
+            Dim rowIndexFormat As Integer = 32
+            Dim rowIndexSum As Integer = 5
             Dim pageBreak As Integer = 35
             Dim pageLenght As Integer = 88
             Dim pageLenghtSum As Integer = 88
@@ -165,19 +165,19 @@ Public Class Print
                     ws.Range($"D{rowIndexPaste}").Value = pvs.ttnsInfo.ttns_shifr
                     ws.Range($"I{rowIndexPaste}").Value = pvs.pvs_dg_num
 
-                    ws.Range($"D{rowIndexPaste + 1}").Value = $"{pvs.ttnsInfo.ttns_sert_num}, {pvs.ttnsInfo.ttns_sert_date_po.Value:dd.MM.yyyy}"
+                    ws.Range($"D{rowIndexPaste + 2}").Value = $"{pvs.ttnsInfo.ttns_sert_num}, {pvs.ttnsInfo.ttns_sert_date_po.Value:dd.MM.yyyy}"
 
                     ws.Range($"W{rowIndexPaste}").Value = If(pvs.ttnsInfo.ttns_p_name_s, pvs.ttnsInfo.ttns_nommodif)
 
-                    ws.Range($"W{rowIndexPaste + 2}").Value = pvs.ttnsInfo.ttns_seria
-                    ws.Range($"W{rowIndexPaste + 3}").Value = pvs.ttnsInfo.ttns_sgod.Value.ToString("dd.MM.yyyy")
+                    ws.Range($"W{rowIndexPaste + 3}").Value = pvs.ttnsInfo.ttns_seria
+                    ws.Range($"W{rowIndexPaste + 4}").Value = pvs.ttnsInfo.ttns_sgod.Value.ToString("dd.MM.yyyy")
 
-                    ws.Range($"AI{rowIndexPaste + 2}").Value = Decimal.Round(pvs.pvs_kol_tov.Value, 2)
-                    ws.Range($"AI{rowIndexPaste + 3}").Value = pvs.ttnsInfo.ttns_ed_shortname.ToString
+                    ws.Range($"AI{rowIndexPaste + 3}").Value = Decimal.Round(pvs.pvs_kol_tov.Value, 2)
+                    ws.Range($"AI{rowIndexPaste + 4}").Value = pvs.ttnsInfo.ttns_ed_shortname.ToString
 
-                    ws.Range($"AM{rowIndexPaste + 2}").Value = pvs.ttnsInfo.ttns_temp_regim_name
-                    ws.Range($"AW{rowIndexPaste + 2}").Value = Decimal.Round(pvs.ttnsInfo.ttns_rcena_nds.Value, 2)
-                    ws.Range($"BD{rowIndexPaste + 2}").Value = Decimal.Round(pvs.ttnsInfo.ttns_rcena_nds.Value * pvs.pvs_kol_tov.Value, 2)
+                    ws.Range($"AM{rowIndexPaste + 3}").Value = pvs.ttnsInfo.ttns_temp_regim_name
+                    ws.Range($"AW{rowIndexPaste + 3}").Value = Decimal.Round(pvs.ttnsInfo.ttns_rcena_nds.Value, 2)
+                    ws.Range($"BD{rowIndexPaste + 3}").Value = Decimal.Round(pvs.ttnsInfo.ttns_rcena_nds.Value * pvs.pvs_kol_tov.Value, 2)
 
                     Dim s = 0
                     s = pvs.ttnsInfo.ttns_nds_i_val + 100
@@ -193,7 +193,7 @@ Public Class Print
                     allSumNdsRozn += Decimal.Round(ndsSumRozn, 2)
 
                     If k < pv.pvsList.Count Then
-                        ws.Rows.Insert(rowIndexFormat, 4)
+                        ws.Rows.Insert(rowIndexFormat, rowIndexSum)
                         ws.Range($"A{rowIndexFormat}").CopyFrom(ws.Range($"A{rowIndexPaste}:BI{rowIndexFormat - 1}"), PasteSpecial.Formats)
                         rowIndexFormat += rowIndexSum
                         rowIndexPaste += rowIndexSum
