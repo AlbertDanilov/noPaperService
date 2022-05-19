@@ -236,14 +236,15 @@ Public Class LayoutStamps
                     'If File.Exists(pdfFileNamePathExtension) Then
                     '    File.Delete(pdfFileNamePathExtension)
                     'End If
+                    'Dim rn As Cell = "DATE1"
                 Catch ex As Exception
                     If File.Exists(docFileNamePathExtension) Then
                         File.Delete(docFileNamePathExtension)
                     End If
-                    'If File.Exists(pdfFileNamePathExtension) Then
-                    '    pdfFile = File.ReadAllBytes(pdfFileNamePathExtension)
-                    '    File.Delete(pdfFileNamePathExtension)
-                    'End If
+                    If File.Exists(pdfFileNamePathExtension) Then
+                        'pdfFile = File.ReadAllBytes(pdfFileNamePathExtension)
+                        File.Delete(pdfFileNamePathExtension)
+                    End If
                     Throw New Exception(CSKLAD.noPaperAPIException.LayoutStamp)
                 End Try
             End Using

@@ -178,10 +178,10 @@ Namespace Controllers
 
                             i += 1
                         Catch ex As Exception
-                            If ex.Message = CSKLAD.noPaperAPIException.PrintExcel Then
+                            If ex.Message = CSKLAD.noPaperAPIException.PrintExcel.ToString Then
                                 invoice.ErrorText = "Ошибка в Excel"
                                 invoice.IsError = True
-                            ElseIf ex.Message = CSKLAD.noPaperAPIException.LayoutStamp Then
+                            ElseIf ex.Message = CSKLAD.noPaperAPIException.LayoutStamp.ToString Then
                                 invoice.ErrorText = "Не удается проштамповать документ"
                                 invoice.IsError = True
                             Else
