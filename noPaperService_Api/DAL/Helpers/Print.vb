@@ -269,7 +269,7 @@ Public Class Print
 
                 ws.Range("DATE1").Value = Date.Now.ToString("dd.MM.yyyy")
             Catch ex As Exception
-                'Throw New Exception(CSKLAD.EXCEPTION.PrintExcel)
+                Throw New Exception(CSKLAD.noPaperAPIException.PrintExcel)
             Finally
                 wb.EndUpdate()
             End Try

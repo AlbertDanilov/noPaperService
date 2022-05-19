@@ -3,7 +3,7 @@ Imports System.IO
 Imports DevExpress.Spreadsheet
 Imports DevExpress.XtraRichEdit
 Imports iTextSharp.text.pdf
-Imports noPaperService_Api.Helpers
+Imports noPaperService_Api.Entities
 
 Public Class LayoutStamps
     Public Shared Function LayoutStamps(savePath As String, docFileName As String, sign As Byte(), docFileNamePathExtension As String, signIden As String)
@@ -244,7 +244,7 @@ Public Class LayoutStamps
                     '    pdfFile = File.ReadAllBytes(pdfFileNamePathExtension)
                     '    File.Delete(pdfFileNamePathExtension)
                     'End If
-                    'Throw New Exception(CSKLAD.EXCEPTION.LayoutStamp)
+                    Throw New Exception(CSKLAD.noPaperAPIException.LayoutStamp)
                 End Try
             End Using
         End Using

@@ -178,11 +178,18 @@ Namespace Controllers
 
                             i += 1
                         Catch ex As Exception
-                            'Request
-                            'response
-                            errorPV.Add(pv_id)
+                            If ex.Message = CSKLAD.noPaperAPIException.PrintExcel Then
+                                invoice.ErrorText = "Ошибка в Excel"
+                                invoice.IsError = True
+                            ElseIf ex.Message = CSKLAD.noPaperAPIException.LayoutStamp Then
+                                invoice.ErrorText = "Не удается проштамповать документ"
+                                invoice.IsError = True
+                            Else
+                                errorPV.Add(pv_id)
+                                invoice.ErrorText &= ex.Message & vbNewLine
+                            End If
+
                             'responseData.IsError = True
-                            invoice.ErrorText &= ex.Message & vbNewLine
                             'Throw New Exception(CSKLAD.EXCEPTION.Json)
                         End Try
                     Next

@@ -15,7 +15,7 @@
         Public Const c_WORK_PROG_KRUG_DOBRA As Integer = 14
 #End Region
 
-        Public Enum EXCEPTION
+        Public Enum noPaperAPIException
             PrintExcel
             LayoutStamp
             PrintDoc
