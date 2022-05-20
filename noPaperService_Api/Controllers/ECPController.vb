@@ -178,12 +178,17 @@ Namespace Controllers
 
                             i += 1
                         Catch ex As Exception
-                            If ex.Message = CSKLAD.noPaperAPIException.PrintExcel.ToString Then
-                                invoice.ErrorText = "Ошибка в Excel"
-                                invoice.IsError = True
-                            ElseIf ex.Message = CSKLAD.noPaperAPIException.LayoutStamp.ToString Then
-                                invoice.ErrorText = "Не удается проштамповать документ"
-                                invoice.IsError = True
+                            Dim num As Integer
+                            Dim isNum = Integer.TryParse(ex.Message, num)
+
+                            If isNum Then
+                                If ex.Message = CSKLAD.noPaperAPIException.PrintExcel Then
+                                    invoice.ErrorText = "Ошибка в Excel"
+                                    invoice.IsError = True
+                                ElseIf ex.Message = CSKLAD.noPaperAPIException.LayoutStamp Then
+                                    invoice.ErrorText = "Не удается проштамповать документ"
+                                    invoice.IsError = True
+                                End If
                             Else
                                 errorPV.Add(pv_id)
                                 invoice.ErrorText &= ex.Message & vbNewLine

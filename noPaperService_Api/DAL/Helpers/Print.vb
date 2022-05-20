@@ -91,43 +91,44 @@ Public Class Print
             Dim osnName As String = String.Empty
             Dim prim As String = String.Empty
 
-            If pv.pv_work_program_id = CSKLAD.c_WORK_PROG_ROZN Then
-                zayTypeS = "Сводная заявка № "
-                prim = ""
-            ElseIf pv.pv_work_program_id = CSKLAD.c_WORK_PROG_RODSERT Then
-                zayTypeS = "Заявка № "
-                prim = pv.pv_zay_lpu
-            ElseIf pv.pv_work_program_id = CSKLAD.c_WORK_PROG_ONLS Then
-                zayTypeS = "Заявка № "
-                prim = ""
-            ElseIf pv.pv_work_program_id = CSKLAD.c_WORK_PROG_7NOZ Then
-                zayTypeS = "Заявка № "
-                prim = ""
-            ElseIf pv.pv_work_program_id = CSKLAD.c_WORK_PROG_SPEC_PROG Then
-                zayTypeS = ""
-                prim = pv.pv_zay_lpu
-            ElseIf pv.pv_work_program_id = CSKLAD.c_WORK_PROG_10ST Then
-                zayTypeS = "Заявка № "
-                If pv.pv_sklad_iname = "МЗ РФ 3" Then
-                    prim = "Гос. контракт № 12-216 от 14.08.2012 г."
-                Else
-                    prim = pv.pv_zay_lpu
-                End If
-            Else
-                zayTypeS = "Заявка № "
-                prim = pv.pv_zay_lpu
-            End If
-
-            If pv.pv_zay_zname IsNot String.Empty Then
-                osnName = zayTypeS & pv.pv_zay_zname & " от " & pv.pv_zay_cdate.Value.ToString("dd.MM.yyyy")
-            Else
-                osnName = pv.pv_reason
-            End If
-
             wb.Unit = DevExpress.Office.DocumentUnit.Point
             wb.BeginUpdate()
 
+            'Dim rn As Cell = "DATE1"
             Try
+                If pv.pv_work_program_id = CSKLAD.c_WORK_PROG_ROZN Then
+                    zayTypeS = "Сводная заявка № "
+                    prim = ""
+                ElseIf pv.pv_work_program_id = CSKLAD.c_WORK_PROG_RODSERT Then
+                    zayTypeS = "Заявка № "
+                    prim = pv.pv_zay_lpu
+                ElseIf pv.pv_work_program_id = CSKLAD.c_WORK_PROG_ONLS Then
+                    zayTypeS = "Заявка № "
+                    prim = ""
+                ElseIf pv.pv_work_program_id = CSKLAD.c_WORK_PROG_7NOZ Then
+                    zayTypeS = "Заявка № "
+                    prim = ""
+                ElseIf pv.pv_work_program_id = CSKLAD.c_WORK_PROG_SPEC_PROG Then
+                    zayTypeS = ""
+                    prim = pv.pv_zay_lpu
+                ElseIf pv.pv_work_program_id = CSKLAD.c_WORK_PROG_10ST Then
+                    zayTypeS = "Заявка № "
+                    If pv.pv_sklad_iname = "МЗ РФ 3" Then
+                        prim = "Гос. контракт № 12-216 от 14.08.2012 г."
+                    Else
+                        prim = pv.pv_zay_lpu
+                    End If
+                Else
+                    zayTypeS = "Заявка № "
+                    prim = pv.pv_zay_lpu
+                End If
+
+                If pv.pv_zay_zname IsNot String.Empty Then
+                    osnName = zayTypeS & pv.pv_zay_zname & " от " & pv.pv_zay_cdate.Value.ToString("dd.MM.yyyy")
+                Else
+                    osnName = pv.pv_reason
+                End If
+
                 Dim k = 1
                 Dim rng As CellRange
 
