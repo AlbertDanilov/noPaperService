@@ -143,16 +143,22 @@ Namespace Controllers
 
                     For Each pv_id As Integer In listPV
                         Try
-                            jsonFileNamePath = $"{mainPath}\JSON\{pv_id}.json"
-                            sign = File.ReadAllBytes($"{mainPath}\P7S\{pv_id}.p7s")
-                            absoluteUrl = HttpContext.Current.Request.Url.Authority
-                            signIden = $"https://{absoluteUrl}/ECP_API/api/GetEcp?pv_id={pv_id}-"
-
-                            Dim signedFileByte As Byte() = File.ReadAllBytes(jsonFileNamePath)
-                            Dim docTemplateFileNamePath As String = $"{mainPath}\Накладная.xlsx"
                             Dim docFileNamePathExtension As String = String.Empty
                             Dim docFileNamePath As String = String.Empty
                             Dim docFileName As String = String.Empty
+                            Dim signedFileByte As Byte()
+                            Dim docTemplateFileNamePath As String = $"{mainPath}\Накладная.xlsx"
+
+                            Try
+                                jsonFileNamePath = $"{mainPath}\JSON\{pv_id}.json"
+                                sign = File.ReadAllBytes($"{mainPath}\P7S\{pv_id}.p7s")
+                                absoluteUrl = HttpContext.Current.Request.Url.Authority
+                                signIden = $"https://{absoluteUrl}/ECP_API/api/GetEcp?pv_id={pv_id}-"
+
+                                signedFileByte = File.ReadAllBytes(jsonFileNamePath)
+                            Catch ex As Exception
+                                Throw New Exception(CSKLAD.noPaperAPIException.Json)
+                            End Try
 
                             Print.PrintExcel(mainPath, jsonFileNamePath, docFileName, docFileNamePath, docTemplateFileNamePath, docFileNamePathExtension)
                             LayoutStamps.LayoutStampsExcel(savePath, docFileName, sign, docFileNamePathExtension, signIden, pdfFiles)
@@ -188,14 +194,14 @@ Namespace Controllers
                                 ElseIf ex.Message = CSKLAD.noPaperAPIException.LayoutStamp Then
                                     invoice.ErrorText = "Не удается проштамповать документ"
                                     invoice.IsError = True
+                                ElseIf ex.Message = CSKLAD.noPaperAPIException.Json Then
+                                    invoice.ErrorText = "Электронная накладная в процессе формирования"
+                                    invoice.IsError = True
                                 End If
                             Else
                                 errorPV.Add(pv_id)
                                 invoice.ErrorText &= ex.Message & vbNewLine
                             End If
-
-                            'responseData.IsError = True
-                            'Throw New Exception(CSKLAD.EXCEPTION.Json)
                         End Try
                     Next
                 End Using
