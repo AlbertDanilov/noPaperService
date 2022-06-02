@@ -35,5 +35,6 @@ namespace noPaperService_common.Entities
         public DateTime? ttns_sert_date_po { get; set; }
         public String ttns_ed_shortname { get; set; }
         public String ttns_temp_regim_name { get; set; }
+        public DateTime? ttns_sert_date_s { get; set; }
     }
 }

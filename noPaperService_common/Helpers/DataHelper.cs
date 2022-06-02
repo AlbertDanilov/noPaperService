@@ -155,6 +155,7 @@ namespace noPaperAPI_common.Helpers
                                    ttns_temp_regim_id = dss.Field<Int16?>("ttns_temp_regim_id"),
                                    ttns_sert_num = dss.Field<String>("ttns_sert_num"),
                                    ttns_sert_date_po = dss.Field<DateTime?>("ttns_sert_date_po"),
+                                   ttns_sert_date_s = dss.Field<DateTime?>("ttns_sert_date_s"),
                                    ttns_ed_shortname = dss.Field<String>("ttns_ed_shortname"),
                                    ttns_temp_regim_name = dss.Field<String>("ttns_temp_regim_name"),
                                    pvs_dg_num = dss.Field<String>("pvs_dg_num")
@@ -199,6 +200,7 @@ namespace noPaperAPI_common.Helpers
                                        ttns_temp_regim_id = dss.Key.ttns_temp_regim_id,
                                        ttns_sert_num = dss.Key.ttns_sert_num,
                                        ttns_sert_date_po = dss.Key.ttns_sert_date_po,
+                                       ttns_sert_date_s = dss.Key.ttns_sert_date_s,
                                        ttns_ed_shortname = dss.Key.ttns_ed_shortname,
                                        ttns_temp_regim_name = dss.Key.ttns_temp_regim_name,
                                    }
