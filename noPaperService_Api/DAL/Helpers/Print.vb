@@ -166,7 +166,7 @@ Public Class Print
                     ws.Range($"D{rowIndexPaste}").Value = pvs.ttnsInfo.ttns_shifr
                     ws.Range($"I{rowIndexPaste}").Value = pvs.pvs_dg_num
 
-                    ws.Range($"D{rowIndexPaste + 2}").Value = $"{pvs.ttnsInfo.ttns_sert_num}, {pvs.ttnsInfo.ttns_sert_date_po.Value:dd.MM.yyyy}"
+                    ws.Range($"D{rowIndexPaste + 2}").Value = $"{pvs.ttnsInfo.ttns_sert_num}, {If(pvs.ttnsInfo.ttns_sert_date_s.HasValue, pvs.ttnsInfo.ttns_sert_date_s.Value.ToString("dd.MM.yyyy"), String.Empty)}"
 
                     ws.Range($"W{rowIndexPaste}").Value = If(pvs.ttnsInfo.ttns_p_name_s, pvs.ttnsInfo.ttns_nommodif)
 
