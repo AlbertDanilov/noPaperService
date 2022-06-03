@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using noPaperAPI_common.Helpers;
 using noPaperService_common.Const;
 using noPaperService_common.Entities;
 using noPaperService_common.Helpers;
@@ -38,6 +39,7 @@ namespace noPaperAPI_robot3
 
             String jsonPath = "C:\\Rsklad.Documents\\JSON";
             String p7sPath = "C:\\Rsklad.Documents\\P7S";
+            String p7sAptPath = "C:\\Rsklad.Documents\\P7S_APT";
 
             Directory.CreateDirectory("C:\\Rsklad.Documents");
             Directory.CreateDirectory("C:\\Rsklad.Documents\\JSON");
@@ -63,6 +65,8 @@ namespace noPaperAPI_robot3
             string routingKeyJson = "json";
             string routingKeyP7s = "p7s";
             string routingKeySigned = "signedIds";
+            string routingKeyJsonApt = "json_for_apt";
+            string routingKeyP7sApt = "p7s_for_apt";
 
             try
             {
@@ -80,6 +84,10 @@ namespace noPaperAPI_robot3
                     channel.QueueBind(queue: queueName,
                                       exchange: "signData",
                                       routingKey: routingKeyP7s);
+
+                    channel.QueueBind(queue: queueName,
+                                      exchange: "signAptData",
+                                      routingKey: routingKeyP7sApt);
 
                     var consumer = new EventingBasicConsumer(channel);
 
@@ -126,6 +134,27 @@ namespace noPaperAPI_robot3
                                     {
                                         Console.WriteLine($"signData is null or Length = 0");
                                         LogHelper.WriteLog($"signData is null or Length = 0");
+                                    }
+                                    break;
+
+                                case "p7s_for_apt":
+                                    //получаем, конвертируем
+                                    EcpSignData_p7s signAptData = FormatHelper.FromByteArray<EcpSignData_p7s>(body.ToArray());
+
+                                    if (signAptData != null && signAptData.sign.Length > 0)
+                                    {
+                                        Console.WriteLine($"Received document [{signAptData.pv_id}] N{counterP7s++}");
+
+                                        //сохраняем
+                                        File.WriteAllBytes(p7sAptPath + $"\\{signAptData.pv_id}.p7s", signAptData.sign);
+
+                                        //проставляем apt_signed, apt_signed_date в pri_voz_worked_out
+                                        DataHelper.signedAptSet(signAptData.pv_id);
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine($"signAptData is null or Length = 0");
+                                        LogHelper.WriteLog($"signAptData is null or Length = 0");
                                     }
                                     break;
                             }

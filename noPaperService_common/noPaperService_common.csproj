@@ -60,6 +60,7 @@
   <ItemGroup>
     <Compile Include="Const\ViewConst.cs" />
     <Compile Include="Entities\CertComponent.cs" />
+    <Compile Include="Entities\EcpSignData_aptSign.cs" />
     <Compile Include="Entities\EcpSignData_p7s.cs" />
     <Compile Include="Entities\EcpSignData_pv.cs" />
     <Compile Include="Entities\EcpSignData_pvs.cs" />

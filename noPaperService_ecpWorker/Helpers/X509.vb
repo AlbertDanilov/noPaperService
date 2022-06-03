@@ -40,15 +40,21 @@ Public Class X509
         Try
             Dim store As New X509Store("My", StoreLocation.CurrentUser)
             store.Open(OpenFlags.OpenExistingOnly Or OpenFlags.ReadWrite)
-            If store.Certificates.Count = 0 Then
-                store.Close()
-                store = New X509Store("My", StoreLocation.LocalMachine)
-                store.Open(OpenFlags.OpenExistingOnly Or OpenFlags.ReadWrite)
-            End If
-            'Dim fcollection As X509Certificate2Collection = store.Certificates
+
             Dim fcollection As X509Certificate2Collection = CType(store.Certificates.Find(X509FindType.FindByThumbprint,
                                                                                           thumbprint,
                                                                                           True), X509Certificate2Collection)
+
+            If fcollection.Count = 0 Then
+                store.Close()
+                store = New X509Store("My", StoreLocation.LocalMachine)
+                store.Open(OpenFlags.OpenExistingOnly Or OpenFlags.ReadWrite)
+
+                fcollection = CType(store.Certificates.Find(X509FindType.FindByThumbprint,
+                                                            thumbprint,
+                                                            True), X509Certificate2Collection)
+            End If
+
             If fcollection.Count > 0 Then
                 Return New ReturnData(True, fcollection.Item(0), Nothing)
             Else

@@ -216,6 +216,57 @@ namespace noPaperAPI_common.Helpers
             return docItems;
         }
 
+        public static List<EcpSignData_aptSign> GetEcpAptSignData()
+        {
+            LogHelper.WriteLog("GetEcpAptSignData");
+
+            DataTable dt = new DataTable("T");
+            List<EcpSignData_aptSign> signItems = null;
+
+            try
+            {
+                using (var con = new SqlConnection(ConnectionSting))
+                {
+                    using (var cmd = new SqlCommand("", con))
+                    {
+                        using (var da = new SqlDataAdapter(cmd))
+                        {
+                            da.SelectCommand.CommandType = CommandType.StoredProcedure;
+                            da.SelectCommand.CommandText = "DOCS_ECP_APT_SIGN_DATA_GET_ALL";
+                            da.SelectCommand.Parameters.Clear();
+                            da.Fill(dt);
+                        }
+                    }
+                }
+                LogHelper.WriteLog($"DOCS_ECP_APT_SIGN_DATA_GET_ALL, rows.count = {dt.Rows.Count}");
+            }
+            catch (Exception ex)
+            {
+                LogHelper.WriteLog($"GetEcpSignData Exception: {ex.Message}");
+                return null;
+            }
+
+            try
+            {
+                signItems = dt.AsEnumerable()
+                            .GroupBy(x => new { 
+                                   pv_id = x.Field<Int64>("pv_id"),
+                                   thumbprint = x.Field<String>("thumbprint")
+                            }).Select(y => new EcpSignData_aptSign
+                            { 
+                                pv_id = y.Key.pv_id,
+                                thumbprint = y.Key.thumbprint
+                            }).ToList();
+            }
+            catch (Exception ex)
+            {
+                LogHelper.WriteLog($"GroupBy Exception: {ex.Message}");
+                return null;
+            }
+
+            return signItems;
+        }
+
         public static void sendedSet(List<long> sendedIds) 
         {
             LogHelper.WriteLog("sendedSet");
@@ -268,6 +319,30 @@ namespace noPaperAPI_common.Helpers
             catch (Exception ex)
             {
                 LogHelper.WriteLog($"signedSet Exception: {ex.Message}");
+            }
+        }
+
+        public static void signedAptSet(long signedId)
+        {
+            LogHelper.WriteLog($"signedAptSet = {signedId}");
+
+            try
+            {
+                using (var con = new SqlConnection(ConnectionSting))
+                using (var cmd = new SqlCommand("", con))
+                {
+                    con.Open();
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.CommandText = "DOCS_ECP_APT_SIGNED_SET";
+                    cmd.Parameters.Clear();
+                    cmd.Parameters.AddWithValue("pv_id", signedId);
+                    cmd.ExecuteNonQuery();
+                    con.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.WriteLog($"signedAptSet Exception: {ex.Message}");
             }
         }
     }

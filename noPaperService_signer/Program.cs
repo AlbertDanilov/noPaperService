@@ -54,6 +54,8 @@ namespace noPaperAPI_robot2
 
             string routingKeyJson = "json";
             string routingKeyP7s = "p7s";
+            string routingKeyJsonApt = "json_for_apt";
+            string routingKeyP7sApt = "p7s_for_apt";
 
             try
             {
@@ -68,6 +70,10 @@ namespace noPaperAPI_robot2
                                       exchange: "signData",
                                       routingKey: routingKeyJson);
 
+                    channel.QueueBind(queue: queueNameJson,
+                                      exchange: "signAptData",
+                                      routingKey: routingKeyJsonApt);
+
                     var consumer = new EventingBasicConsumer(channel);
 
                     consumer.Received += (sender, e) =>
@@ -75,31 +81,84 @@ namespace noPaperAPI_robot2
                         try
                         {
                             var body = e.Body;
-                            var message = Encoding.UTF8.GetString(body.ToArray());
-                            EcpSignData_pv doc = JsonConvert.DeserializeObject<EcpSignData_pv>(message);
-                            Console.WriteLine($"Received document [{doc.pv_id}] N{counterJson++}");
 
-                            //подписать
-                            ReturnData p7s = ECP.Sign("9B552D4E124F2190270D3E222D675B9656C9DAFF", body.ToArray());
-                            Console.WriteLine($"Signed document [{doc.pv_id}]");
-
-                            EcpSignData_p7s p7sData = new EcpSignData_p7s() { pv_id = doc.pv_id, sign = (Byte[])p7s.data };
-                            Byte[] sendData = FormatHelper.ToByteArray(p7sData);
-
-                            if (sendData != null && sendData.Length > 0)
+                            switch (e.RoutingKey)
                             {
-                                //отправить
-                                channel.BasicPublish(exchange: "signData",
-                                                             routingKey: routingKeyP7s,
-                                                             basicProperties: null,
-                                                             body: sendData);
-                                Console.WriteLine($"Sended sign [{doc.pv_id}] N{sendedSign++}");
-                            }
-                            else
-                            {
-                                Console.WriteLine($"sendData is null or Length = 0");
-                                LogHelper.WriteLog($"sendData is null or Length = 0");
-                            }
+                                case "json":
+                                    var message = Encoding.UTF8.GetString(body.ToArray());
+                                    EcpSignData_pv doc = JsonConvert.DeserializeObject<EcpSignData_pv>(message);
+                                    Console.WriteLine($"Received document [{doc.pv_id}] N{counterJson++}");
+
+                                    //подписать
+                                    ReturnData p7s = ECP.Sign("9B552D4E124F2190270D3E222D675B9656C9DAFF", body.ToArray());
+                                    Console.WriteLine($"Signed document [{doc.pv_id}]");
+
+                                    EcpSignData_p7s p7sData = new EcpSignData_p7s() { pv_id = doc.pv_id, sign = (Byte[])p7s.data };
+                                    Byte[] sendData = FormatHelper.ToByteArray(p7sData);
+
+                                    if (sendData != null && sendData.Length > 0)
+                                    {
+                                        //отправить
+                                        channel.BasicPublish(exchange: "signData",
+                                                                     routingKey: routingKeyP7s,
+                                                                     basicProperties: null,
+                                                                     body: sendData);
+                                        Console.WriteLine($"Sended sign [{doc.pv_id}] N{sendedSign++}");
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine($"sendData is null or Length = 0");
+                                        LogHelper.WriteLog($"sendData is null or Length = 0");
+                                    }
+                                    break;
+
+                                case "json_for_apt":
+                                    //получаем, конвертируем
+                                    EcpSignData_aptSignData signData = FormatHelper.FromByteArray<EcpSignData_aptSignData>(body.ToArray());
+
+                                    if (signData != null && signData.json.Length > 0) 
+                                    {
+                                        Console.WriteLine($"Received aptSign document [{signData.pv_id}] N{counterJson++}");
+
+                                        //подписать
+                                        ReturnData p7s_apt = ECP.Sign(signData.thumbprint, body.ToArray());
+
+                                        if (p7s_apt != null && p7s_apt.data != null)
+                                        {
+                                            Console.WriteLine($"Signed document [{signData.pv_id}]");
+
+                                            EcpSignData_p7s p7sAptData = new EcpSignData_p7s() { pv_id = signData.pv_id, 
+                                                                                                 sign = (Byte[])p7s_apt.data };
+                                            Byte[] sendAptData = FormatHelper.ToByteArray(p7sAptData);
+
+                                            if (sendAptData != null && sendAptData.Length > 0)
+                                            {
+                                                //отправить
+                                                channel.BasicPublish(exchange: "signAptData",
+                                                                     routingKey: routingKeyP7sApt,
+                                                                     basicProperties: null,
+                                                                     body: sendAptData);
+                                                Console.WriteLine($"Sended sign [{signData.pv_id}] N{sendedSign++}");
+                                            }
+                                            else
+                                            {
+                                                Console.WriteLine($"sendAptData is null or Length = 0");
+                                                LogHelper.WriteLog($"sendAptData is null or Length = 0");
+                                            }
+                                        }
+                                        else 
+                                        {
+                                            Console.WriteLine($"Document not Signed! [{signData.pv_id}, {signData.thumbprint}]");
+                                            LogHelper.WriteLog($"Document not Signed! [{signData.pv_id}, {signData.thumbprint}]");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine($"signData is null or json.Length = 0");
+                                        LogHelper.WriteLog($"signData is null or json.Length = 0");
+                                    }
+                                    break;
+                            }                            
                         }
                         catch (Exception ex)
                         {
