@@ -76,5 +76,9 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Manuals\подпись ЭЦП аптеки.jpg" />
+    <Content Include="Manuals\подпись ЭЦП склада.jpg" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
