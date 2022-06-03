@@ -126,6 +126,7 @@ Namespace Controllers
             Try
                 Dim jsonFileNamePath
                 Dim sign As Byte()
+                Dim signApt As Byte()
                 Dim absoluteUrl
                 Dim signIden As String
 
@@ -152,6 +153,11 @@ Namespace Controllers
                             Try
                                 jsonFileNamePath = $"{mainPath}\JSON\{pv_id}.json"
                                 sign = File.ReadAllBytes($"{mainPath}\P7S\{pv_id}.p7s")
+
+                                If File.Exists($"{mainPath}\P7S_APT\{pv_id}.p7s") Then
+                                    signApt = File.ReadAllBytes($"{mainPath}\P7S_APT\{pv_id}.p7s")
+                                End If
+
                                 absoluteUrl = HttpContext.Current.Request.Url.Authority
                                 signIden = $"https://{absoluteUrl}/ECP_API/api/GetEcp?pv_id={pv_id}-"
 
@@ -161,7 +167,7 @@ Namespace Controllers
                             End Try
 
                             Print.PrintExcel(mainPath, jsonFileNamePath, docFileName, docFileNamePath, docTemplateFileNamePath, docFileNamePathExtension)
-                            LayoutStamps.LayoutStampsExcel(savePath, docFileName, sign, docFileNamePathExtension, signIden, pdfFiles)
+                            LayoutStamps.LayoutStampsExcel(savePath, docFileName, sign, signApt, docFileNamePathExtension, signIden, pdfFiles)
 
                             endFile = $"{savePath}\Накладные {jsonStringPV}.pdf"
 

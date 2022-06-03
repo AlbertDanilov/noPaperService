@@ -134,7 +134,7 @@ Public Class LayoutStamps
         End Using
     End Function
 
-    Public Shared Function LayoutStampsExcel(savePath As String, docFileName As String, sign As Byte(), docFileNamePathExtension As String, signIden As String, pdfFiles As List(Of String))
+    Public Shared Function LayoutStampsExcel(savePath As String, docFileName As String, sign As Byte(), signApt As Byte(), docFileNamePathExtension As String, signIden As String, pdfFiles As List(Of String))
         'Dim pdfFile As Byte() = Nothing
 
         Dim pdfFileNamePathExtension = $"{savePath}\{docFileName}.pdf"
@@ -142,6 +142,10 @@ Public Class LayoutStamps
         'Список для штампов
         Dim stampList As List(Of Bitmap)
         stampList = CreateStamps.CreateStamps.GetStamps(sign, signIden)
+
+        If signApt IsNot Nothing Then
+            CreateStamps.CreateStamps.GetStamps(signApt, signIden, stampList, 2)
+        End If
 
         Using workbook As New Workbook()
             Using inputPdfStream As New MemoryStream

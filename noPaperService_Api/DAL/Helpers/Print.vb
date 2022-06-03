@@ -72,7 +72,7 @@ Public Class Print
             Dim rowIndexPaste As Integer = 27
             Dim rowIndexFormat As Integer = 32
             Dim rowIndexSum As Integer = 5
-            Dim pageBreak As Integer = 35
+            Dim pageBreak As Integer = 35 'размер итоговой части
             Dim pageLenght As Integer = 88
             Dim pageLenghtSum As Integer = 88
             Dim pageLenghtRow As Integer = 79
@@ -203,22 +203,19 @@ Public Class Print
                         If rowIndexPaste + rowIndexSum > pageLenght Then
                             pageLenght += pageLenghtSum
                             pageLenghtRow += pageLenghtSum
-                            ws.HorizontalPageBreaks.Add(rowIndexPaste - 1)
+                            ws.HorizontalPageBreaks.Add(rowIndexPaste - 1) ' разрыв страницы, если превышает определенную длину
                         End If
                     End If
                 Next
 
                 Dim cellrng As CellRange = ws.Range("ROW_LIST")
                 If cellrng.BottomRowIndex >= pageLenghtRow Then
-                    ws.HorizontalPageBreaks.Add(cellrng.BottomRowIndex - pageBreak)
+                    ws.HorizontalPageBreaks.Add(cellrng.BottomRowIndex - pageBreak) 'разрыв страницы на итоговую часть
                 End If
 
                 ws.Range("OTPUSK_PRODUCE").Value = pv.pv_sklad_mol
 
-                Dim d = cellrng.BottomRowIndex - ws.Range("ITOGO").BottomRowIndex + 1 'pageBreak
-
                 ws.Range("ITOGO").Value = $"ИТОГО ПО ТТН № {pv.pv_nom}/ {pv.pv_sklad_name} ОТ {pv.pv_otr_date.Value:dd.MM.yyyy} отгр {pv.pv_otg_date.Value:dd.MM.yyyy}"
-
 
                 allSumOptBnds = Decimal.Round(allSumOptBnds, 2, MidpointRounding.AwayFromZero)
                 allSumRoznNds = Decimal.Round(allSumRoznNds, 2, MidpointRounding.AwayFromZero)
