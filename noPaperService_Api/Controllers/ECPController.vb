@@ -23,7 +23,14 @@ Namespace Controllers
             Dim str As String() = pv_id.ToString().Split("-")
             pv_id = str(0)
             Dim jsonFileNamePath = $"{mainPath}\JSON\{pv_id}.json"
-            Dim signFileNamePath = $"{mainPath}\P7S\{pv_id}.p7s"
+            Dim signFileNamePath As String
+
+            If str(1) = 1 Then
+                signFileNamePath = $"{mainPath}\P7S\{pv_id}.p7s"
+            Else
+                signFileNamePath = $"{mainPath}\P7S_APT\{pv_id}.p7s"
+            End If
+
             Dim response As New HttpResponseMessage()
             Dim imgBytes As Byte() = My.Resources.shtamp_png
             Dim headerText As String = String.Empty
