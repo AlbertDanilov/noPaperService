@@ -94,7 +94,7 @@ Namespace Controllers
                                                         <p><b><big>Владелец:</big></b> " & signComponent.SignCer.fullSubject & "</p>
                                                         <p><b><big>Издатель:</big></b> " & signComponent.SignCer.fullIssued & "</h2></p>
                                                         <p><b><big>Действителен:</big></b> " & signComponent.SignCer.valid & "</p>
-                                                        <p><b><big>Место хранения:</big></b><a href=""https://etpzakaz.ru/""> etpzakaz.ru</a></p>
+                                                        <p><b><big>Место хранения:</big></b><a href=""https://farm.tatarstan.ru/""> ttmf.ru</a></p>
                                                         <body style=""background:url(data:image/png;base64," & Convert.ToBase64String(imgBytes) & ") no-repeat  60% 10%"">
                                                         <p><b><big>Дата подписи: </big></b>" & signComponent.SignDateTimeUtc.ToLocalTime.ToString("yyyy.MM.dd HH:mm") & "</p>
                                                          </body>
