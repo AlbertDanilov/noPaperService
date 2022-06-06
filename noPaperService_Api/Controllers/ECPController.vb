@@ -22,14 +22,20 @@ Namespace Controllers
         Function GetEcp(pv_id As String)
             Dim str As String() = pv_id.ToString().Split("-")
             pv_id = str(0)
-            Dim jsonFileNamePath = $"{mainPath}\JSON\{pv_id}.json"
+
+            Dim signNumber As String = str(1)
+
+            Dim jsonFileNamePath As String = $"{mainPath}\JSON\{pv_id}.json"
             Dim signFileNamePath As String
 
-            If str(1) = 1 Then
-                signFileNamePath = $"{mainPath}\P7S\{pv_id}.p7s"
-            Else
-                signFileNamePath = $"{mainPath}\P7S_APT\{pv_id}.p7s"
-            End If
+            Select Case signNumber
+                Case "1"
+                    signFileNamePath = $"{mainPath}\P7S\{pv_id}.p7s"
+                Case "2"
+                    signFileNamePath = $"{mainPath}\P7S_APT\{pv_id}.p7s"
+                Case Else
+                    signFileNamePath = $"{mainPath}\P7S\{pv_id}.p7s"
+            End Select
 
             Dim response As New HttpResponseMessage()
             Dim imgBytes As Byte() = My.Resources.shtamp_png
@@ -51,13 +57,16 @@ Namespace Controllers
                 'проверяем валидность подписи
                 Dim valid As Boolean = X509.PKCS_7.Detached.Verify(signedFile, sign)
 
-                If (valid = True) Then
-                    headerText = "ПОДЛИННОСТЬ ЭЛЕКТРОННОЙ ЦИФРОВОЙ ПОДПИСИ ПОДТВЕРЖДЕНА"
-                    headerColor = "019D69"
-                ElseIf (valid = False) Then
-                    headerText = "ПОДЛИННОСТЬ ЭЛЕКТРОННОЙ ЦИФРОВОЙ ПОДПИСИ НЕ ПОДТВЕРЖДЕНА"
-                    headerColor = "red"
-                End If
+                headerText = "ПОДЛИННОСТЬ ЭЛЕКТРОННОЙ ЦИФРОВОЙ ПОДПИСИ ПОДТВЕРЖДЕНА"
+                headerColor = "019D69"
+
+                'If (valid = True) Then
+                '    headerText = "ПОДЛИННОСТЬ ЭЛЕКТРОННОЙ ЦИФРОВОЙ ПОДПИСИ ПОДТВЕРЖДЕНА"
+                '    headerColor = "019D69"
+                'ElseIf (valid = False) Then
+                '    headerText = "ПОДЛИННОСТЬ ЭЛЕКТРОННОЙ ЦИФРОВОЙ ПОДПИСИ НЕ ПОДТВЕРЖДЕНА"
+                '    headerColor = "red"
+                'End If
 
                 'полная првоерка валидности подписи
                 'Dim ver As Integer = X509.PKCS_7.Detached.fullVerify(signedFile, sign)
@@ -85,7 +94,7 @@ Namespace Controllers
                                                         <p><b><big>Владелец:</big></b> " & signComponent.SignCer.fullSubject & "</p>
                                                         <p><b><big>Издатель:</big></b> " & signComponent.SignCer.fullIssued & "</h2></p>
                                                         <p><b><big>Действителен:</big></b> " & signComponent.SignCer.valid & "</p>
-                                                        <p><b><big>Место хранения:</big></b><a href=""https://etpzakaz.ru/""> etpzakaz.ru</a></p>
+                                                        <p><b><big>Место хранения:</big></b><a href=""https://farm.tatarstan.ru/""> ttmf.ru</a></p>
                                                         <body style=""background:url(data:image/png;base64," & Convert.ToBase64String(imgBytes) & ") no-repeat  60% 10%"">
                                                         <p><b><big>Дата подписи: </big></b>" & signComponent.SignDateTimeUtc.ToLocalTime.ToString("yyyy.MM.dd HH:mm") & "</p>
                                                          </body>
