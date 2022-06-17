@@ -36,5 +36,23 @@ namespace noPaperService_common.Entities
         public String ttns_ed_shortname { get; set; }
         public String ttns_temp_regim_name { get; set; }
         public DateTime? ttns_sert_date_s { get; set; }
+
+        public Int32? docs_p_jnvls { get; set; }
+        public String docs_p_mnn { get; set; }
+        public String docs_p_tn { get; set; }
+        public String docs_p_proizv { get; set; }
+        public Decimal? docs_p_prcena_proizv { get; set; }
+        public Decimal? docs_prcena_bnds { get; set; }
+        public Decimal? docs_prcena_nds { get; set; }
+        public Decimal? docs_ocena_bnds { get; set; }
+        public Decimal? nac_sum_val { get; set; }
+        public Decimal? nac_prc_val { get; set; }
+        public Decimal? nac_sum_val_p { get; set; }
+        public Decimal? nac_prc_val_p { get; set; }
+        public Decimal? nac_sum_val_p2 { get; set; }
+        public Decimal? nac_prc_val_p2 { get; set; }
+        public Decimal? rcena_bnds { get; set; }
+        public Decimal? nac_sum_rozn_val { get; set; }
+        public Decimal? nac_prc_rozn_val { get; set; }
     }
 }

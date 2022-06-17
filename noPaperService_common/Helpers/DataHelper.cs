@@ -158,7 +158,24 @@ namespace noPaperAPI_common.Helpers
                                    ttns_sert_date_s = dss.Field<DateTime?>("ttns_sert_date_s"),
                                    ttns_ed_shortname = dss.Field<String>("ttns_ed_shortname"),
                                    ttns_temp_regim_name = dss.Field<String>("ttns_temp_regim_name"),
-                                   pvs_dg_num = dss.Field<String>("pvs_dg_num")
+                                   pvs_dg_num = dss.Field<String>("pvs_dg_num"),
+                                   docs_p_jnvls = dss.Field<Int32?>("docs_p_jnvls"),
+                                   docs_p_mnn = dss.Field<String>("docs_p_mnn"),
+                                   docs_p_tn = dss.Field<String>("docs_p_tn"),
+                                   docs_p_proizv = dss.Field<String>("docs_p_proizv"),
+                                   docs_p_prcena_proizv = dss.Field<Decimal?>("docs_p_prcena_proizv"),
+                                   docs_prcena_bnds = dss.Field<Decimal?>("docs_prcena_bnds"),
+                                   docs_prcena_nds = dss.Field<Decimal?>("docs_prcena_nds"),
+                                   docs_ocena_bnds = dss.Field<Decimal?>("docs_ocena_bnds"),
+                                   nac_sum_val = dss.Field<Decimal?>("nac_sum_val"),
+                                   nac_prc_val = dss.Field<Decimal?>("nac_prc_val"),
+                                   nac_sum_val_p = dss.Field<Decimal?>("nac_sum_val_p"),
+                                   nac_prc_val_p = dss.Field<Decimal?>("nac_prc_val_p"),
+                                   nac_sum_val_p2 = dss.Field<Decimal?>("nac_sum_val_p2"),
+                                   nac_prc_val_p2 = dss.Field<Decimal?>("nac_prc_val_p2"),
+                                   rcena_bnds = dss.Field<Decimal?>("rcena_bnds"),
+                                   nac_sum_rozn_val = dss.Field<Decimal?>("nac_sum_rozn_val"),
+                                   nac_prc_rozn_val = dss.Field<Decimal?>("nac_prc_rozn_val")
                                }).Select(dss => new EcpSignData_pvs
                                {
                                    pvs_id = dss.Key.pvs_id,
@@ -203,6 +220,23 @@ namespace noPaperAPI_common.Helpers
                                        ttns_sert_date_s = dss.Key.ttns_sert_date_s,
                                        ttns_ed_shortname = dss.Key.ttns_ed_shortname,
                                        ttns_temp_regim_name = dss.Key.ttns_temp_regim_name,
+                                       docs_p_jnvls = dss.Key.docs_p_jnvls,
+                                       docs_p_mnn = dss.Key.docs_p_mnn,
+                                       docs_p_tn = dss.Key.docs_p_tn,
+                                       docs_p_proizv = dss.Key.docs_p_proizv,
+                                       docs_p_prcena_proizv = dss.Key.docs_p_prcena_proizv,
+                                       docs_prcena_bnds = dss.Key.docs_prcena_bnds,
+                                       docs_prcena_nds = dss.Key.docs_prcena_nds,
+                                       docs_ocena_bnds = dss.Key.docs_ocena_bnds,
+                                       nac_sum_val = dss.Key.nac_sum_val,
+                                       nac_prc_val = dss.Key.nac_prc_val,
+                                       nac_sum_val_p = dss.Key.nac_sum_val_p,
+                                       nac_prc_val_p = dss.Key.nac_prc_val_p,
+                                       nac_sum_val_p2 = dss.Key.nac_sum_val_p2,
+                                       nac_prc_val_p2 = dss.Key.nac_prc_val_p2,
+                                       rcena_bnds = dss.Key.rcena_bnds,
+                                       nac_sum_rozn_val = dss.Key.nac_sum_rozn_val,
+                                       nac_prc_rozn_val = dss.Key.nac_prc_rozn_val
                                    }
                                }).ToList()
                            }).ToList();
