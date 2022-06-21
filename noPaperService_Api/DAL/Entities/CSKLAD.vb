@@ -20,6 +20,7 @@
             LayoutStamp
             PrintDoc
             Json
+            Jnvls
         End Enum
 
     End Class

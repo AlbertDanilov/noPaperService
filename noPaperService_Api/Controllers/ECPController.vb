@@ -124,7 +124,7 @@ Namespace Controllers
                 Dim docFileName As String = String.Empty
 
                 Print.PrintDoc(mainPath, jsonFileNamePath, docFileName, docFileNamePath, docTemplateFileNamePath, docFileNamePathExtension)
-                Dim pdfByte = LayoutStamps.LayoutStamps(savePath, docFileName, sign, docFileNamePathExtension, signIden)
+                Dim pdfByte = Helpers.LayoutStamps.LayoutStamps(savePath, docFileName, sign, docFileNamePathExtension, signIden)
 
                 Dim response As HttpResponseMessage = New HttpResponseMessage(HttpStatusCode.OK) With {
                     .Content = New ByteArrayContent(pdfByte)
@@ -135,18 +135,14 @@ Namespace Controllers
             End Try
         End Function
 
-        'Печать ПДФ со штампами ЭКСЕЛЬ
+        'Печать ПДФ со штампами ЭКСЕЛЬ (Накаладная)
         <HttpGet>
         <Route("api/GetInvoiceExcel")>
-        Function PrintExcelPDF(jsonStringPV As String)
+        Function PrintExcelPDF_Invoice(jsonPV As String)
             Try
-                Dim jsonFileNamePath
-                Dim sign As Byte()
-                Dim signApt As Byte()
                 Dim absoluteUrl
-                Dim signIden As String
 
-                Dim listPV = Utf8Json.JsonSerializer.Deserialize(Of List(Of Integer))(jsonStringPV)
+                Dim listPV = Utf8Json.JsonSerializer.Deserialize(Of List(Of Integer))(jsonPV)
                 Dim pdfByte = Nothing
                 Dim pdfFiles As New List(Of String)
                 Dim endFile As String = String.Empty
@@ -154,51 +150,54 @@ Namespace Controllers
                 Dim errorPV As New List(Of Integer)
                 Dim responseData As New ResponseData
                 Dim invoice As New Invoice
+                Dim printExcel As New PrintExcel
+                Dim layoutStamps As New Entities.LayoutStamps
+
+                printExcel.nameFile = "Накладная"
 
                 Using pdfDocumentProcessor As New PdfDocumentProcessor()
                     Dim i = 0
 
                     For Each pv_id As Integer In listPV
                         Try
-                            Dim docFileNamePathExtension As String = String.Empty
-                            Dim docFileNamePath As String = String.Empty
-                            Dim docFileName As String = String.Empty
                             Dim signedFileByte As Byte()
-                            Dim docTemplateFileNamePath As String = $"{mainPath}\Накладная.xlsx"
+                            printExcel.docTemplateFileNamePath = $"{mainPath}\{printExcel.nameFile}.xlsx"
 
                             Try
-                                jsonFileNamePath = $"{mainPath}\JSON\{pv_id}.json"
-                                sign = File.ReadAllBytes($"{mainPath}\P7S\{pv_id}.p7s")
+                                printExcel.jsonFileNamePath = $"{mainPath}\JSON\{pv_id}.json"
+                                layoutStamps.sign = File.ReadAllBytes($"{mainPath}\P7S\{pv_id}.p7s")
 
                                 If File.Exists($"{mainPath}\P7S_APT\{pv_id}.p7s") Then
-                                    signApt = File.ReadAllBytes($"{mainPath}\P7S_APT\{pv_id}.p7s")
+                                    layoutStamps.signApt = File.ReadAllBytes($"{mainPath}\P7S_APT\{pv_id}.p7s")
                                 End If
 
                                 absoluteUrl = HttpContext.Current.Request.Url.Authority
-                                signIden = $"https://{absoluteUrl}/ECP_API/api/GetEcp?pv_id={pv_id}-"
+                                layoutStamps.signIden = $"https://{absoluteUrl}/ECP_API/api/GetEcp?pv_id={pv_id}-"
 
-                                signedFileByte = File.ReadAllBytes(jsonFileNamePath)
+                                signedFileByte = File.ReadAllBytes(printExcel.jsonFileNamePath)
                             Catch ex As Exception
-                                Throw New Exception(CSKLAD.noPaperAPIException.Json)
+                                responseData.IsError = True
+                                responseData.ErrorText = CSKLAD.noPaperAPIException.Json
+                                Throw New Exception()
                             End Try
 
-                            Print.PrintExcel(mainPath, jsonFileNamePath, docFileName, docFileNamePath, docTemplateFileNamePath, docFileNamePathExtension)
-                            LayoutStamps.LayoutStampsExcel(savePath, docFileName, sign, signApt, docFileNamePathExtension, signIden, pdfFiles)
+                            Print.PrintExcelInvoice(mainPath, printExcel, responseData)
+                            Helpers.LayoutStamps.LayoutStampsExcelBook(savePath, layoutStamps, printExcel, responseData)
 
-                            endFile = $"{savePath}\Накладные {jsonStringPV}.pdf"
+                            endFile = $"{savePath}\{printExcel.nameFile} {jsonPV}.pdf"
 
                             If listPV.Count = 1 Then
-                                endFile = pdfFiles(i)
+                                endFile = layoutStamps.pdfFiles(i)
                             Else
                                 If i = 0 Then
                                     pdfDocumentProcessor.CreateEmptyDocument(endFile)
-                                    pdfDocumentProcessor.AppendDocument(pdfFiles(i))
+                                    pdfDocumentProcessor.AppendDocument(layoutStamps.pdfFiles(i))
                                 Else
-                                    pdfDocumentProcessor.AppendDocument(pdfFiles(i))
+                                    pdfDocumentProcessor.AppendDocument(layoutStamps.pdfFiles(i))
                                 End If
 
-                                If File.Exists(pdfFiles(i)) Then
-                                    File.Delete(pdfFiles(i))
+                                If File.Exists(layoutStamps.pdfFiles(i)) Then
+                                    File.Delete(layoutStamps.pdfFiles(i))
                                 End If
                             End If
 
@@ -206,19 +205,21 @@ Namespace Controllers
 
                             i += 1
                         Catch ex As Exception
-                            Dim num As Integer
-                            Dim isNum = Integer.TryParse(ex.Message, num)
-
-                            If isNum Then
-                                If ex.Message = CSKLAD.noPaperAPIException.PrintExcel Then
+                            If responseData.IsError Then
+                                If responseData.ErrorText = CSKLAD.noPaperAPIException.PrintExcel Then
                                     invoice.ErrorText = "Ошибка в Excel"
                                     invoice.IsError = True
-                                ElseIf ex.Message = CSKLAD.noPaperAPIException.LayoutStamp Then
+                                    errorPV.Clear()
+                                    Exit For
+                                ElseIf responseData.ErrorText = CSKLAD.noPaperAPIException.LayoutStamp Then
                                     invoice.ErrorText = "Не удается проштамповать документ"
                                     invoice.IsError = True
-                                ElseIf ex.Message = CSKLAD.noPaperAPIException.Json Then
-                                    invoice.ErrorText = "Электронная накладная в процессе формирования"
+                                    errorPV.Clear()
+                                    Exit For
+                                ElseIf responseData.ErrorText = CSKLAD.noPaperAPIException.Json Then
+                                    invoice.ErrorText = "Электронный документ в процессе формирования"
                                     invoice.IsError = True
+                                    errorPV.Add(pv_id)
                                 End If
                             Else
                                 errorPV.Add(pv_id)
@@ -234,7 +235,127 @@ Namespace Controllers
                 invoice.ErrorPV = errorPV
                 invoice.PdfByte = pdfByte
 
-                'responseData.Data = invoice
+                If File.Exists(endFile) Then
+                    File.Delete(endFile)
+                End If
+
+                Dim jsonResponse As String = Utf8Json.JsonSerializer.ToJsonString(invoice)
+
+                Dim response As New HttpResponseMessage(HttpStatusCode.OK) With {
+                    .Content = New StringContent(jsonResponse)
+                }
+                Return response
+            Catch ex As Exception
+                Dim response As New HttpResponseMessage(HttpStatusCode.InternalServerError) With {
+                    .Content = New StringContent(ex.Message)
+                }
+                Dim r = New HttpResponseException(response)
+                Throw r
+            End Try
+        End Function
+
+        'Печать ПДФ со штампами ЭКСЕЛЬ (Протокол согласования цен)
+        <HttpGet>
+        <Route("api/GetPriceApprovalProtocolExcel")>
+        Function PrintExcelPDF_PriceApprovalProtocol(jsonPV As String)
+            Try
+                Dim absoluteUrl
+
+                Dim listPV = Utf8Json.JsonSerializer.Deserialize(Of List(Of Integer))(jsonPV)
+                Dim pdfByte = Nothing
+                Dim endFile As String = String.Empty
+                Dim okPV As New List(Of Integer)
+                Dim errorPV As New List(Of Integer)
+                Dim responseData As New ResponseData
+                Dim invoice As New Invoice
+                Dim printExcel As New PrintExcel
+                Dim layoutStamps As New Entities.LayoutStamps
+
+                printExcel.nameFile = "Протокол согласования цен"
+
+                Using pdfDocumentProcessor As New PdfDocumentProcessor()
+                    Dim i = 0
+
+                    For Each pv_id As Integer In listPV
+                        Try
+                            Dim signedFileByte As Byte()
+                            printExcel.docTemplateFileNamePath = $"{mainPath}\{printExcel.nameFile}.xlsx"
+
+                            Try
+                                printExcel.jsonFileNamePath = $"{mainPath}\JSON\{pv_id}.json"
+                                layoutStamps.sign = File.ReadAllBytes($"{mainPath}\P7S\{pv_id}.p7s")
+
+                                If File.Exists($"{mainPath}\P7S_APT\{pv_id}.p7s") Then
+                                    layoutStamps.signApt = File.ReadAllBytes($"{mainPath}\P7S_APT\{pv_id}.p7s")
+                                End If
+
+                                absoluteUrl = HttpContext.Current.Request.Url.Authority
+                                layoutStamps.signIden = $"https://{absoluteUrl}/ECP_API/api/GetEcp?pv_id={pv_id}-"
+
+                                signedFileByte = File.ReadAllBytes(printExcel.jsonFileNamePath)
+                            Catch ex As Exception
+                                responseData.IsError = True
+                                responseData.ErrorText = CSKLAD.noPaperAPIException.Json
+                                Throw New Exception()
+                            End Try
+
+                            Print.PrintExcel_PriceApprovalProtocol(mainPath, printExcel, responseData)
+                            Helpers.LayoutStamps.LayoutStampsExcel(savePath, layoutStamps, printExcel, responseData)
+
+                            endFile = $"{savePath}\{printExcel.nameFile} {jsonPV}.pdf"
+
+                            If listPV.Count = 1 Then
+                                endFile = layoutStamps.pdfFiles(i)
+                            Else
+                                If i = 0 Then
+                                    pdfDocumentProcessor.CreateEmptyDocument(endFile)
+                                    pdfDocumentProcessor.AppendDocument(layoutStamps.pdfFiles(i))
+                                Else
+                                    pdfDocumentProcessor.AppendDocument(layoutStamps.pdfFiles(i))
+                                End If
+
+                                If File.Exists(layoutStamps.pdfFiles(i)) Then
+                                    File.Delete(layoutStamps.pdfFiles(i))
+                                End If
+                            End If
+
+                            okPV.Add(pv_id)
+
+                            i += 1
+                        Catch ex As Exception
+                            If responseData.IsError Then
+                                If responseData.ErrorText = CSKLAD.noPaperAPIException.PrintExcel Then
+                                    invoice.ErrorText = "Ошибка в Excel"
+                                    invoice.IsError = True
+                                    errorPV.Clear()
+                                    Exit For
+                                ElseIf responseData.ErrorText = CSKLAD.noPaperAPIException.LayoutStamp Then
+                                    invoice.ErrorText = "Не удается проштамповать документ"
+                                    invoice.IsError = True
+                                    errorPV.Clear()
+                                    Exit For
+                                ElseIf responseData.ErrorText = CSKLAD.noPaperAPIException.Json Then
+                                    invoice.ErrorText = "Электронный документ в процессе формирования"
+                                    invoice.IsError = True
+                                    errorPV.Add(pv_id)
+                                ElseIf responseData.ErrorText = CSKLAD.noPaperAPIException.Jnvls Then
+                                    invoice.ErrorText = "Нет товаров ЖНВЛС"
+                                    invoice.IsError = True
+                                    errorPV.Add(pv_id)
+                                End If
+                            Else
+                                errorPV.Add(pv_id)
+                                invoice.ErrorText &= ex.Message & vbNewLine
+                            End If
+                        End Try
+                    Next
+                End Using
+
+                If endFile IsNot String.Empty Then pdfByte = File.ReadAllBytes(endFile)
+
+                invoice.OkPV = okPV
+                invoice.ErrorPV = errorPV
+                invoice.PdfByte = pdfByte
 
                 If File.Exists(endFile) Then
                     File.Delete(endFile)
@@ -255,5 +376,4 @@ Namespace Controllers
             End Try
         End Function
     End Class
-
 End Namespace

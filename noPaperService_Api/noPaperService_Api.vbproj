@@ -283,6 +283,8 @@
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.vb" />
     <Compile Include="Controllers\ECPController.vb" />
     <Compile Include="DAL\Entities\CertComponent.vb" />
+    <Compile Include="DAL\Entities\LayoutStamps.vb" />
+    <Compile Include="DAL\Entities\PrintExcel.vb" />
     <Compile Include="DAL\Entities\Invoice.vb" />
     <Compile Include="DAL\Entities\ProgramEntities.vb" />
     <Compile Include="DAL\Entities\FilePathComponent.vb" />
