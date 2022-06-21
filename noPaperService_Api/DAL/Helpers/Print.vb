@@ -391,7 +391,7 @@ Public Class Print
                     Next
 
                     Dim cellrng As CellRange = ws.Range("ROW_LIST")
-                    If cellrng.BottomRowIndex >= pageLenghtRow Then
+                    If cellrng.BottomRowIndex >= pageLenghtRow - 1 Then
                         Dim row As Integer = cellrng.BottomRowIndex - pageBreak
                         ws.HorizontalPageBreaks.Add(row) 'разрыв страницы на итоговую часть
                         listRng.Add($"CL{row + 1}")
