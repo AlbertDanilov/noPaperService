@@ -142,8 +142,11 @@ Namespace Helpers
             Dim stampList As List(Of Bitmap)
             stampList = CreateStamps.CreateStamps.GetStamps(layoutStamps.sign, layoutStamps.signIden)
 
+            Dim _stampList As List(Of Bitmap)
+
             If layoutStamps.signApt IsNot Nothing Then
                 CreateStamps.CreateStamps.GetStamps(layoutStamps.signApt, layoutStamps.signIden, stampList, 2)
+                _stampList = CreateStamps.CreateStamps._GetStamps(printExcel)
             End If
 
             Using workbook As New Workbook()
@@ -182,6 +185,58 @@ Namespace Helpers
                                         Next
 #End Region
 
+#Region "печать приемки"
+                                        'Dim _image1 As iTextSharp.text.Image = iTextSharp.text.Image.GetInstance(CreateStamps.CreateStamps.ImageToBytes(_stampList(0)))
+                                        'Dim _parser = New parser.PdfReaderContentParser(reader)
+                                        'Dim _finder = _parser.ProcessContent(reader.NumberOfPages, New parser.TextMarginFinder())
+                                        'Dim _lastPage As iTextSharp.text.Rectangle = reader.GetPageSize(reader.NumberOfPages)
+                                        'Dim _maxHeightPage = _lastPage.Height
+                                        'Dim _maxVerticalHeightPage = 792
+                                        'Dim _lastElemHeight As Integer
+                                        'Try
+                                        '    _lastElemHeight = _finder.GetHeight()
+                                        'Catch ex As Exception
+                                        '    Throw ex
+                                        'End Try
+
+                                        'Dim _newWidth As Integer
+                                        'Dim _newHeight As Integer
+                                        'Dim _isNewPage As Boolean
+                                        'If _maxHeightPage > _lastElemHeight + 280 Then
+                                        '    _newWidth = 17
+                                        '    _newHeight = 17
+                                        '    _isNewPage = False
+                                        'Else
+                                        '    _isNewPage = True
+                                        '    Dim rectangle = reader.GetPageSize(1)
+                                        '    stamper.InsertPage(reader.NumberOfPages + 1, rectangle)
+                                        '    Try
+                                        '        stamper.GetOverContent(reader.NumberOfPages - 1).AddImage(imagetext)
+                                        '    Catch ex As Exception
+                                        '        Throw ex
+                                        '    End Try
+                                        '    _newWidth = 17
+                                        '    _newHeight = _maxVerticalHeightPage - (10 + 120)
+                                        'End If
+                                        'Dim _pdfContentByte As PdfContentByte = stamper.GetOverContent(reader.NumberOfPages)
+                                        ''Позиция изображения
+                                        '_image1.SetAbsolutePosition(_newWidth, _newHeight + 126)
+                                        ''Размер изображения
+                                        '_image1.ScaleAbsolute(280, 120)
+                                        '_pdfContentByte.AddImage(_image1)
+                                        'If _stampList.Count > 1 Then
+                                        'Dim _image2 As iTextSharp.text.Image = iTextSharp.text.Image.GetInstance(CreateStamps.CreateStamps.ImageToBytes(_stampList(_stampList.Count - 1)))
+                                        ''Позиция изображения
+                                        'If _isNewPage Then
+                                        '    _image2.SetAbsolutePosition(reader.GetPageSize(reader.NumberOfPages).Width - (280 + 17), _maxVerticalHeightPage - (10 + 120))
+                                        'Else
+                                        '    _image2.SetAbsolutePosition(reader.GetPageSize(reader.NumberOfPages).Width - (280 + 17), 17 + 126)
+                                        'End If
+                                        ''Размер изображения
+                                        '_image2.ScaleAbsolute(280, 120)
+                                        '_pdfContentByte.AddImage(_image2)
+#End Region
+
 #Region "печать эцп"
                                         Dim image1 As iTextSharp.text.Image = iTextSharp.text.Image.GetInstance(CreateStamps.CreateStamps.ImageToBytes(stampList(0)))
                                         Dim parser = New parser.PdfReaderContentParser(reader)
@@ -214,6 +269,46 @@ Namespace Helpers
                                         image1.ScaleAbsolute(280, 120)
                                         pdfContentByte.AddImage(image1)
                                         If stampList.Count > 1 Then
+#Region "печать приемки"
+                                            Dim _image1 As iTextSharp.text.Image = iTextSharp.text.Image.GetInstance(CreateStamps.CreateStamps.ImageToBytes(_stampList(0)))
+                                            Dim _maxVerticalHeightPage = 792 - 122
+                                            Dim _newWidth As Integer
+                                            Dim _newHeight As Integer
+                                            Dim _isNewPage As Boolean
+
+                                            _newWidth = 17
+                                            _newHeight = 17
+                                            _isNewPage = False
+
+                                            'If maxHeightPage > lastElemHeight + 280 Then
+                                            '    _newWidth = 17
+                                            '    _newHeight = 17
+                                            '    _isNewPage = False
+                                            'Else
+                                            '    _isNewPage = True
+                                            '    Dim rectangle = reader.GetPageSize(1)
+                                            '    stamper.InsertPage(reader.NumberOfPages + 1, rectangle)
+                                            '    Try
+                                            '        stamper.GetOverContent(reader.NumberOfPages - 1).AddImage(imagetext)
+                                            '    Catch ex As Exception
+                                            '        Throw ex
+                                            '    End Try
+                                            '    _newWidth = 17
+                                            '    _newHeight = _maxVerticalHeightPage - (10 + 120)
+                                            'End If
+
+                                            Dim _pdfContentByte As PdfContentByte = stamper.GetOverContent(reader.NumberOfPages)
+                                            Dim _image2 As iTextSharp.text.Image = iTextSharp.text.Image.GetInstance(CreateStamps.CreateStamps.ImageToBytes(_stampList(_stampList.Count - 1)))
+                                            'Позиция изображения
+                                            If _isNewPage Then
+                                                '_image2.SetAbsolutePosition(reader.GetPageSize(reader.NumberOfPages).Width - (280 + 17), _maxVerticalHeightPage - (10 + 120) + 122)
+                                            Else
+                                                _image2.SetAbsolutePosition(reader.GetPageSize(reader.NumberOfPages).Width - (280 + 17), 17 + 122)
+                                            End If
+                                            'Размер изображения
+                                            _image2.ScaleAbsolute(280, 120)
+                                            _pdfContentByte.AddImage(_image2)
+#End Region
                                             Dim image2 As iTextSharp.text.Image = iTextSharp.text.Image.GetInstance(CreateStamps.CreateStamps.ImageToBytes(stampList(stampList.Count - 1)))
                                             'Позиция изображения
                                             If isNewPage Then

@@ -40,6 +40,14 @@ Namespace CreateStamps
             Return stampList
         End Function
 
+        Public Shared Function _GetStamps(printExcel As PrintExcel, Optional ByRef stampList As List(Of Bitmap) = Nothing) As List(Of Bitmap)
+            If stampList Is Nothing Then
+                stampList = New List(Of Bitmap)
+            End If
+            stampList.Add(_GetStamp(printExcel))
+            Return stampList
+        End Function
+
         Public Shared Function GetSigners(ByVal sign As Byte()) As List(Of SignComponent)
             ' Объект, в котором будут происходить декодирование и проверка.
             Dim signedCms As SignedCms = New SignedCms()
@@ -99,6 +107,78 @@ Namespace CreateStamps
                 'Рисуем дату подписи
                 g.DrawString("Дата подписи:", New Font("Arial", 80, FontStyle.Bold), myBrush, New Rectangle(100, myBMPHeight - 250, 950, 150))
                 g.DrawString(signComponent.SignDateTimeUtc.ToLocalTime.ToString("yyyy.MM.dd HH:mm"), New Font("Arial", 80), myBrush, New Rectangle(1000, myBMPHeight - 250, 2450, 150))
+            End Using
+            'Возвращаем холст
+            Return myBMP
+            Return Nothing
+        End Function
+
+        'Получение штампа
+        Public Shared Function _GetStamp(printExcel As PrintExcel) As Image
+            'Кисть
+            Dim myBrush As System.Drawing.Brush = New SolidBrush(Drawing.Color.FromArgb(43, 87, 154))
+            'Высота холста
+            Dim myBMPHeight As Integer = 1500
+            'Создаем холст для рисования
+            Dim myBMP As New Bitmap(3500, myBMPHeight, Imaging.PixelFormat.Format32bppArgb)
+
+            Dim sf As New StringFormat With {
+                .Alignment = StringAlignment.Center,
+                .LineAlignment = StringAlignment.Center
+            }
+
+            Using g As Graphics = Graphics.FromImage(myBMP)
+                'Рисуем рамку штампа
+                g.DrawRectangle(New Pen(myBrush, 80), New Rectangle(0, 0, 3500, myBMPHeight))
+
+                'Настройки прорисовки текста
+                g.TextRenderingHint = Drawing.Text.TextRenderingHint.AntiAliasGridFit
+                g.SmoothingMode = Drawing2D.SmoothingMode.AntiAlias
+                'Рисуем заголовку
+                Dim emSize As Integer = 90
+                Dim str As String = "ШТАМП ПРИЕМКИ"
+                Dim font = New Font("Arial", emSize, FontStyle.Bold)
+                Dim newX As Decimal = 150.0
+                Dim newY As Decimal = 100.0
+                Dim newWidth As Decimal = 3300.0
+                Dim sizeF As SizeF = g.MeasureString(str, font)
+                g.DrawString(str, font, myBrush, New Rectangle(newX, newY, newWidth, sizeF.Height), sf)
+
+                str = "ГУП «Таттехмедфарм»"
+                font = New Font("Arial", emSize - 10, FontStyle.Underline)
+                newY += sizeF.Height
+                sizeF = g.MeasureString(str, font)
+                g.DrawString(str, font, myBrush, New Rectangle(newX, newY, newWidth, sizeF.Height), sf)
+
+                str = "(наименование юридического лица)"
+                font = New Font("Arial", emSize - 40, FontStyle.Regular)
+                newY += sizeF.Height
+                sizeF = g.MeasureString(str, font)
+                g.DrawString(str, font, myBrush, New Rectangle(newX, newY, newWidth, sizeF.Height), sf)
+
+                str = printExcel.pvAgentPrintname
+                font = New Font("Arial", emSize - 10, FontStyle.Underline)
+                newY += sizeF.Height
+                sizeF = g.MeasureString(str, font)
+                Dim heightLev As Double = Math.Ceiling(sizeF.Width / newWidth)
+                sizeF.Height *= heightLev
+                g.DrawString(str, font, myBrush, New Rectangle(newX, newY, newWidth, sizeF.Height), sf)
+
+                str = "(номер аптечной организации, адрес)"
+                font = New Font("Arial", emSize - 40, FontStyle.Regular)
+                newY += sizeF.Height
+                sizeF = g.MeasureString(str, font)
+                g.DrawString(str, font, myBrush, New Rectangle(newX, newY, newWidth, sizeF.Height), sf)
+
+                str = "Принятый товар соответствует данным, указанным в сопроводительных документах"
+                font = New Font("Arial", emSize, FontStyle.Regular)
+                sizeF = g.MeasureString(str, font)
+                heightLev = Math.Ceiling(sizeF.Width / newWidth)
+                'heightLev = Math.Ceiling(sizeF.Width / 2700.0)
+                'sizeF.Height *= heightLev
+                newY += sizeF.Height
+                sizeF.Height *= heightLev
+                g.DrawString(str, font, myBrush, New Rectangle(100, newY, newWidth, sizeF.Height), sf) '1150
             End Using
             'Возвращаем холст
             Return myBMP

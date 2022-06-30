@@ -6,5 +6,6 @@
         Public Property docTemplateFileNamePath As String
         Public Property docFileNamePathExtension As String = String.Empty
         Public Property nameFile As String = String.Empty
+        Public Property pvAgentPrintname As String = String.Empty
     End Class
 End Namespace

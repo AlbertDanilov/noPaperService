@@ -72,9 +72,17 @@ Public Class Print
             Dim rowIndexFormat As Integer = 32
             Dim rowIndexSum As Integer = 5
             Dim pageBreak As Integer = 35 'размер итоговой части
-            Dim pageLenght As Integer = 88
-            Dim pageLenghtSum As Integer = 88
-            Dim pageLenghtRow As Integer = 79
+            'Dim pageLenght As Integer = 67 '88
+            'Dim pageLenghtSum As Integer = 91 '88
+            'Dim pageLenghtRow As Integer = 67
+
+            Dim pageLenght As Integer = 14
+            Dim pageLenghtSum As Integer = 17
+            Dim pageLenghtBool As Boolean = False
+            'Dim pageLenghtRow As Integer = 67
+            If pv.pvsList.Count > 1 AndAlso pv.pvsList.Count < 14 Then
+                pageLenghtBool = True
+            End If
 
             Dim allSumOptBnds As Decimal = 0
             Dim allSumRoznNds As Decimal = 0
@@ -151,13 +159,15 @@ Public Class Print
                 rng.Font.Color = Color.White
 
                 ws.Range("T19").Value = $"{pv.pv_nom}/ {pv.pv_sklad_name}"
-                ws.Range("AB19").Value = pv.pv_otr_date.Value.ToString("dd.MM.yyyy")
-                ws.Range("AH19").Value = pv.pv_otg_date.Value.ToString("dd.MM.yyyy")
+                ws.Range("AB19").Value = pv.pv_otr_date?.ToString("dd.MM.yyyy")
+                ws.Range("AH19").Value = pv.pv_otg_date?.ToString("dd.MM.yyyy")
 
                 ws.Range("I12").Value = osnName
 
                 ws.Range("G21").Value = pv.pv_otv_fio
                 ws.Range("G22").Value = prim
+
+                printExcel.pvAgentPrintname = pv.pv_agent_printname
 
                 For Each pvs As noPaperService_common.Entities.EcpSignData_pvs In pv.pvsList
                     ws.Range($"A{rowIndexPaste}").Value = k
@@ -165,12 +175,12 @@ Public Class Print
                     ws.Range($"D{rowIndexPaste}").Value = pvs.ttnsInfo.ttns_shifr
                     ws.Range($"I{rowIndexPaste}").Value = pvs.pvs_dg_num
 
-                    ws.Range($"D{rowIndexPaste + 2}").Value = $"{pvs.ttnsInfo.ttns_sert_num}, {If(pvs.ttnsInfo.ttns_sert_date_s.HasValue, pvs.ttnsInfo.ttns_sert_date_s.Value.ToString("dd.MM.yyyy"), String.Empty)}"
+                    ws.Range($"D{rowIndexPaste + 2}").Value = $"{pvs.ttnsInfo.ttns_sert_num}, {pvs.ttnsInfo.ttns_sert_date_s?.ToString("dd.MM.yyyy")}"
 
                     ws.Range($"W{rowIndexPaste}").Value = If(pvs.ttnsInfo.ttns_p_name_s, pvs.ttnsInfo.ttns_nommodif)
 
                     ws.Range($"W{rowIndexPaste + 3}").Value = pvs.ttnsInfo.ttns_seria
-                    ws.Range($"W{rowIndexPaste + 4}").Value = pvs.ttnsInfo.ttns_sgod.Value.ToString("dd.MM.yyyy")
+                    ws.Range($"W{rowIndexPaste + 4}").Value = pvs.ttnsInfo.ttns_sgod?.ToString("dd.MM.yyyy")
 
                     ws.Range($"AI{rowIndexPaste + 3}").Value = Decimal.Round(pvs.pvs_kol_tov.Value, 2)
                     ws.Range($"AI{rowIndexPaste + 4}").Value = pvs.ttnsInfo.ttns_ed_shortname.ToString
@@ -199,22 +209,43 @@ Public Class Print
                         rowIndexPaste += rowIndexSum
                         k += 1
 
-                        If rowIndexPaste + rowIndexSum > pageLenght Then
+                        'If rowIndexPaste + rowIndexSum >= pageLenght Then
+                        '    pageLenght += pageLenghtSum
+                        '    pageLenghtRow += pageLenghtSum
+                        '    ws.HorizontalPageBreaks.Add(rowIndexPaste - 1) ' разрыв страницы, если превышает определенную длину
+                        'End If
+
+                        'If pv.pvsList.Count > 1 AndAlso pv.pvsList.Count < 14 Then
+                        'If k = pv.pvsList.Count AndAlso pageLenghtBool Then
+                        '    ws.HorizontalPageBreaks.Add(rowIndexPaste - 1) ' разрыв страницы, если превышает определенную длину
+                        '    pageLenghtBool = False
+                        'Else
+                        If k = pageLenght Then
                             pageLenght += pageLenghtSum
-                            pageLenghtRow += pageLenghtSum
                             ws.HorizontalPageBreaks.Add(rowIndexPaste - 1) ' разрыв страницы, если превышает определенную длину
                         End If
+
+                        'If k >= i OrElse k > 1 AndAlso k < 15 Then
+                        '    i += 20
+                        '    ws.HorizontalPageBreaks.Add(rowIndexPaste - 1) ' разрыв страницы, если превышает определенную длину
+                        'End If
                     End If
                 Next
 
                 Dim cellrng As CellRange = ws.Range("ROW_LIST")
-                If cellrng.BottomRowIndex >= pageLenghtRow Then
+                'If cellrng.BottomRowIndex >= pageLenghtRow Then
+                '    ws.HorizontalPageBreaks.Add(cellrng.BottomRowIndex - pageBreak) 'разрыв страницы на итоговую часть
+                'End If
+                'i += 17
+                If k = pv.pvsList.Count AndAlso pageLenghtBool Then
+                    ws.HorizontalPageBreaks.Add(cellrng.BottomRowIndex - pageBreak) 'разрыв страницы на итоговую часть
+                ElseIf pageLenght - k < 12 Then
                     ws.HorizontalPageBreaks.Add(cellrng.BottomRowIndex - pageBreak) 'разрыв страницы на итоговую часть
                 End If
 
                 ws.Range("OTPUSK_PRODUCE").Value = pv.pv_sklad_mol
 
-                ws.Range("ITOGO").Value = $"ИТОГО ПО ТТН № {pv.pv_nom}/ {pv.pv_sklad_name} ОТ {pv.pv_otr_date.Value:dd.MM.yyyy} отгр {pv.pv_otg_date.Value:dd.MM.yyyy}"
+                ws.Range("ITOGO").Value = $"ИТОГО ПО ТТН № {pv.pv_nom}/ {pv.pv_sklad_name} ОТ {pv.pv_otr_date?.ToString("dd.MM.yyyy")} отгр {pv.pv_otg_date?.ToString("dd.MM.yyyy")}"
 
                 allSumOptBnds = Decimal.Round(allSumOptBnds, 2, MidpointRounding.AwayFromZero)
                 allSumRoznNds = Decimal.Round(allSumRoznNds, 2, MidpointRounding.AwayFromZero)
@@ -334,9 +365,11 @@ Public Class Print
 
                     listRng.Add("CL28")
 
-                    ws.Range("A13").Value = $"Протокол к накладной № {pv.pv_num} от {pv.pv_otg_date.Value.ToString("dd.MM.yyyy")}"
+                    ws.Range("A13").Value = $"Протокол к накладной № {pv.pv_num} от {pv.pv_otg_date?.ToString("dd.MM.yyyy")}"
                     ws.Range("G22").Value = pv.pv_agent_agnabbr
-                    ws.Range("A28").Value = $"Дата отгрузки: {pv.pv_otg_date.Value.ToString("dd.MM.yyyy")}"
+                    ws.Range("A28").Value = $"Дата отгрузки: {pv.pv_otg_date?.ToString("dd.MM.yyyy")}"
+
+                    'printExcel.pvAgentPrintname = pv.pv_agent_printname
 
                     For Each pvs As noPaperService_common.Entities.EcpSignData_pvs In pv.pvsList
                         ws.Range($"A{rowIndexPaste}").Value = pvs.ttnsInfo.docs_p_mnn '1
