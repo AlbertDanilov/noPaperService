@@ -320,13 +320,6 @@ Public Class Print
 
         Dim jnvlCount = pv.pvsList.AsEnumerable.Where(Function(x) x.ttnsInfo.docs_p_jnvls = 1)
 
-        For Each pvs As noPaperService_common.Entities.EcpSignData_pvs In pv.pvsList
-            If pvs.ttnsInfo.docs_p_jnvls = 1 Then
-                Dim d = 1
-                Exit For
-            End If
-        Next
-
         If jnvlCount.Count > 0 Then
             Using wb As New Workbook()
                 wb.LoadDocument(printExcel.docTemplateFileNamePath)
