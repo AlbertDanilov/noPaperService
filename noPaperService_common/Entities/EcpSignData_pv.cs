@@ -8,6 +8,7 @@ namespace noPaperService_common.Entities
 {
     public class EcpSignData_pv
     {
+        public String user_thumbprint { get; set; }
         public Int64 pv_id { get; set; }
         public Int32? pv_nom { get; set; }
         public String pv_num { get; set; }
