@@ -81,7 +81,8 @@ namespace noPaperAPI_common.Helpers
                                pv_reason = d.Field<String>("pv_reason"),
                                pv_dogovor_date = d.Field<DateTime?>("pv_dogovor_date"),
                                pv_zay_lpu = d.Field<String>("pv_zay_lpu"),
-                               pv_sklad_iname = d.Field<String>("pv_sklad_iname")                               
+                               pv_sklad_iname = d.Field<String>("pv_sklad_iname"),
+                               user_thumbprint = d.Field<String>("user_thumbprint")
                            }).Select(ds => new EcpSignData_pv
                            {
                                pv_id = ds.Key.pv_id,
@@ -115,7 +116,8 @@ namespace noPaperAPI_common.Helpers
                                pv_reason = ds.Key.pv_reason,
                                pv_dogovor_date = ds.Key.pv_dogovor_date,
                                pv_zay_lpu = ds.Key.pv_zay_lpu,
-                               pv_sklad_iname = ds.Key.pv_sklad_iname,                               
+                               pv_sklad_iname = ds.Key.pv_sklad_iname,
+                               user_thumbprint = ds.Key.user_thumbprint,
                                pvsList = ds.GroupBy(dss => new
                                {
                                    pvs_id = dss.Field<Int64>("pvs_id"),

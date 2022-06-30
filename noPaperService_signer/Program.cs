@@ -90,7 +90,7 @@ namespace noPaperAPI_robot2
                                     Console.WriteLine($"Received document [{doc.pv_id}] N{counterJson++}");
 
                                     //подписать
-                                    ReturnData p7s = ECP.Sign("9B552D4E124F2190270D3E222D675B9656C9DAFF", body.ToArray());
+                                    ReturnData p7s = ECP.Sign(doc.user_thumbprint, body.ToArray());
                                     Console.WriteLine($"Signed document [{doc.pv_id}]");
 
                                     EcpSignData_p7s p7sData = new EcpSignData_p7s() { pv_id = doc.pv_id, sign = (Byte[])p7s.data };
