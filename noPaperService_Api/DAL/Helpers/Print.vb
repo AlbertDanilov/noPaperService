@@ -159,8 +159,8 @@ Public Class Print
                 rng.Font.Color = Color.White
 
                 ws.Range("T19").Value = $"{pv.pv_nom}/ {pv.pv_sklad_iname}"
-                ws.Range("AB19").Value = pv.pv_otr_date?.ToString("dd.MM.yyyy")
-                ws.Range("AH19").Value = pv.pv_otg_date?.ToString("dd.MM.yyyy")
+                ws.Range("AH19").Value = pv.pv_otr_date?.ToString("dd.MM.yyyy")
+                ws.Range("AN19").Value = pv.pv_otg_date?.ToString("dd.MM.yyyy")
 
                 ws.Range("I12").Value = osnName
 
