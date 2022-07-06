@@ -78,16 +78,18 @@ Public Class X509
             If fcollection.Count > 0 AndAlso fio_arr IsNot Nothing AndAlso fio_arr.Count > 0 Then
                 For Each item In fcollection
                     Try
-                        Dim k As Integer = 0
+                        If item.NotAfter >= DateTime.Now Then
+                            Dim k As Integer = 0
 
-                        For Each fio_item In fio_arr
-                            If item.SubjectName.Name.Contains(fio_item) Then
-                                k += 1
+                            For Each fio_item In fio_arr
+                                If item.SubjectName.Name.Contains(fio_item) Then
+                                    k += 1
+                                End If
+                            Next
+
+                            If k >= 3 Then
+                                rez_fcollection.Add(item)
                             End If
-                        Next
-
-                        If k >= 3 Then
-                            rez_fcollection.Add(item)
                         End If
                     Catch ex As Exception
                     End Try
@@ -104,16 +106,18 @@ Public Class X509
                 If fcollection.Count > 0 AndAlso fio_arr IsNot Nothing AndAlso fio_arr.Count > 0 Then
                     For Each item In fcollection
                         Try
-                            Dim k As Integer = 0
+                            If item.NotAfter >= DateTime.Now Then
+                                Dim k As Integer = 0
 
-                            For Each fio_item In fio_arr
-                                If item.SubjectName.Name.Contains(fio_item) Then
-                                    k += 1
+                                For Each fio_item In fio_arr
+                                    If item.SubjectName.Name.Contains(fio_item) Then
+                                        k += 1
+                                    End If
+                                Next
+
+                                If k >= 3 Then
+                                    rez_fcollection.Add(item)
                                 End If
-                            Next
-
-                            If k >= 3 Then
-                                rez_fcollection.Add(item)
                             End If
                         Catch ex As Exception
                         End Try
