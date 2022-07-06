@@ -157,7 +157,6 @@ Namespace Controllers
 
                 Using pdfDocumentProcessor As New PdfDocumentProcessor()
                     For Each pv_id As Integer In listPV
-                        'i += 1
                         Try
                             Dim signedFileByte As Byte()
                             printExcel.nameFile = "Накладная"
@@ -188,27 +187,12 @@ Namespace Controllers
                             printExcel.nameFile = "Приложение"
                             printExcel.docTemplateFileNamePath = $"{mainPath}\{printExcel.nameFile}.xlsx"
 
-                            Dim app As Boolean = Print.PrintExcel_InvoiceApplication(mainPath, printExcel, responseData)
-                            'If app Then
-                            '    appPDF = ConvertToPDF.ConvertToPDFExcelBook(mainPath, layoutStamps, printExcel, responseData)
-                            'End If
-
                             If listPV.Count = 1 Then
-                                If app Then
-                                    pdfDocumentProcessor.CreateEmptyDocument(endFile)
-                                    pdfDocumentProcessor.AppendDocument(layoutStamps.pdfFiles(i))
-                                    appPDF = ConvertToPDF.ConvertToPDFExcelBook(mainPath, layoutStamps, printExcel, responseData)
-                                    pdfDocumentProcessor.AppendDocument(appPDF)
+                                pdfDocumentProcessor.CreateEmptyDocument(endFile)
+                                pdfDocumentProcessor.AppendDocument(layoutStamps.pdfFiles(i))
 
-                                    If File.Exists(appPDF) Then
-                                        File.Delete(appPDF)
-                                    End If
-
-                                    If File.Exists(layoutStamps.pdfFiles(i)) Then
-                                        File.Delete(layoutStamps.pdfFiles(i))
-                                    End If
-                                Else
-                                    endFile = layoutStamps.pdfFiles(i)
+                                If File.Exists(layoutStamps.pdfFiles(i)) Then
+                                    File.Delete(layoutStamps.pdfFiles(i))
                                 End If
                             Else
                                 If i = 0 Then
@@ -218,17 +202,22 @@ Namespace Controllers
                                     pdfDocumentProcessor.AppendDocument(layoutStamps.pdfFiles(i))
                                 End If
 
-                                If app Then
-                                    appPDF = ConvertToPDF.ConvertToPDFExcelBook(mainPath, layoutStamps, printExcel, responseData)
-                                    pdfDocumentProcessor.AppendDocument(appPDF)
-
-                                    If File.Exists(appPDF) Then
-                                        File.Delete(appPDF)
-                                    End If
-                                End If
-
                                 If File.Exists(layoutStamps.pdfFiles(i)) Then
                                     File.Delete(layoutStamps.pdfFiles(i))
+                                End If
+                            End If
+
+
+                            Dim app As Boolean = Print.PrintExcel_InvoiceApplication(mainPath, printExcel, responseData)
+                            If app Then
+                                appPDF = ConvertToPDF.ConvertToPDFExcelBook(mainPath, layoutStamps, printExcel, responseData)
+                            End If
+
+                            If app Then
+                                pdfDocumentProcessor.AppendDocument(appPDF)
+
+                                If File.Exists(appPDF) Then
+                                    File.Delete(appPDF)
                                 End If
                             End If
 
@@ -240,13 +229,13 @@ Namespace Controllers
                                 If responseData.ErrorText = CSKLAD.noPaperAPIException.PrintExcel Then
                                     invoice.ErrorText = "Ошибка в Excel"
                                     invoice.IsError = True
-                                    errorPV.Clear()
-                                    Exit For
+                                    errorPV.Add(pv_id)
                                 ElseIf responseData.ErrorText = CSKLAD.noPaperAPIException.LayoutStamp Then
                                     invoice.ErrorText = "Не удается проштамповать документ"
                                     invoice.IsError = True
-                                    errorPV.Clear()
-                                    Exit For
+                                    errorPV.Add(pv_id)
+                                    'errorPV.Clear()
+                                    'Exit For
                                 ElseIf responseData.ErrorText = CSKLAD.noPaperAPIException.Json Then
                                     invoice.ErrorText = "Электронный документ в процессе формирования"
                                     invoice.IsError = True
@@ -254,11 +243,13 @@ Namespace Controllers
                                 ElseIf responseData.ErrorText = CSKLAD.noPaperAPIException.PrintExcelApp Then
                                     invoice.ErrorText = "Ошибка в Excel при печати приложения"
                                     invoice.IsError = True
-                                    errorPV.Clear()
+                                    errorPV.Add(pv_id)
+                                    i += 1
                                 ElseIf responseData.ErrorText = CSKLAD.noPaperAPIException.ConertToPDF Then
                                     invoice.ErrorText = "Ошибка при создании PDF приложения"
                                     invoice.IsError = True
-                                    errorPV.Clear()
+                                    errorPV.Add(pv_id)
+                                    i += 1
                                 End If
                             Else
                                 errorPV.Add(pv_id)
@@ -273,13 +264,8 @@ Namespace Controllers
                 If File.Exists(endFile) Then
                     pdfByte = File.ReadAllBytes(endFile)
                     File.Delete(endFile)
-                    'If File.Exists(layoutStamps.pdfFiles(i)) Then
-                    '    File.Delete(layoutStamps.pdfFiles(i))
-                    'End If
-                    If File.Exists(layoutStamps.pdfFileNamePathExtension) Then
-                        File.Delete(layoutStamps.pdfFileNamePathExtension)
-                    End If
-                ElseIf File.Exists(layoutStamps.pdfFileNamePathExtension) Then
+                End If
+                If File.Exists(layoutStamps.pdfFileNamePathExtension) Then
                     File.Delete(layoutStamps.pdfFileNamePathExtension)
                 End If
 

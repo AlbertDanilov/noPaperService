@@ -273,16 +273,16 @@ Namespace Helpers
                                 End Using
                             End Using
                         End Using
-                        'pdfFile = File.ReadAllBytes(pdfFileNamePathExtension)
+
+                        'If printExcel.pvId = 1657790 Then
+                        'Dim rn As Cell = "DATE1"
+                        'End If
+
                         layoutStamps.pdfFiles.Add(layoutStamps.pdfFileNamePathExtension)
 
                         If File.Exists(printExcel.docFileNamePathExtension) Then
                             File.Delete(printExcel.docFileNamePathExtension)
                         End If
-                        'If File.Exists(pdfFileNamePathExtension) Then
-                        '    File.Delete(pdfFileNamePathExtension)
-                        'End If
-                        'Dim rn As Cell = "DATE1"
                     Catch ex As Exception
                         If File.Exists(printExcel.docFileNamePathExtension) Then
                             File.Delete(printExcel.docFileNamePathExtension)

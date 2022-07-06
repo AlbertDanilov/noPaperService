@@ -9,6 +9,7 @@ Imports noPaperService_Api.Helpers
 Imports noPaperService_Api.Models
 
 Public Class Print
+    Const C_RskladConnectionString = "User ID=sa;Password=r12sql141007;Initial Catalog=rsklad;Data Source=192.168.0.35"
     Public Shared Function PrintDoc(mainPath As String, jsonFileNamePath As String, ByRef docFileName As String, ByRef docFileNamePath As String, docTemplateFileNamePath As String, ByRef docFileNamePathExtension As String)
         Dim docFile As Byte() = Nothing
 
@@ -66,6 +67,22 @@ Public Class Print
         printExcel.docFileName = $"{printExcel.nameFile} {pv.pv_nom} от {Date.Now:dd.MM.yyyy HH.mm.ss}"
         printExcel.docFileNamePath = $"{mainPath}\{printExcel.docFileName}"
         printExcel.docFileNamePathExtension = $"{printExcel.docFileNamePath}.xlsx"
+
+        Dim listParam As New List(Of SqlParameter) From {
+            New SqlParameter("@pv_id", printExcel.pvId)
+        }
+        Dim output As Boolean = False
+
+        Try
+            'output = DBHelper.ExecuteNonQuery("DOCS_PRI_VOZ_TRANSIT_CHECK", C_RskladConnectionString, listParam.ToArray, CommandType.StoredProcedure, True)
+            'If printExcel.pvId = 1657790 Then
+            '    Dim rn As Cell = "DATE1"
+            'End If
+        Catch ex As Exception
+            responseData.IsError = True
+            responseData.ErrorText = CSKLAD.noPaperAPIException.PrintExcel
+            Throw New Exception()
+        End Try
 
         Using wb As New Workbook()
             wb.LoadDocument(printExcel.docTemplateFileNamePath)
@@ -157,6 +174,12 @@ Public Class Print
                     rng = ws.Range("AZ13:BH14")
                     rng.Borders.SetOutsideBorders(Color.Black, BorderLineStyle.Thin)
                     rng.Value = "Медикаменты МО"
+                End If
+
+                If output Then
+                    rng = ws.Range("AZ19:BH20")
+                    rng.Borders.SetOutsideBorders(Color.Black, BorderLineStyle.Thin)
+                    rng.Value = "Транзит"
                 End If
 
                 rng = ws.Range("AZ17:BH18")
@@ -300,7 +323,10 @@ Public Class Print
                 ws.Range("SUM_NDS").Value = allSumNdsRozn
 
                 ws.Range("DATE1").Value = Date.Now.ToString("dd.MM.yyyy")
+
+                'If printExcel.pvId = 1657790 Then
                 'Dim rn As Cell = "DATE1"
+                'End If
             Catch ex As Exception
                 responseData.IsError = True
                 responseData.ErrorText = CSKLAD.noPaperAPIException.PrintExcel
@@ -467,13 +493,21 @@ Public Class Print
     End Sub
 
     Public Shared Function PrintExcel_InvoiceApplication(mainPath As String, printExcel As PrintExcel, responseData As ResponseData)
-        Const C_RskladConnectionString = "User ID=sa;Password=r12sql141007;Initial Catalog=rsklad;Data Source=192.168.0.35"
-
         Dim listParam As New List(Of SqlParameter) From {
             New SqlParameter("@pv_id", printExcel.pvId)
         }
+        Dim dtApp As DataTable
 
-        Dim dtApp As DataTable = DBHelper.GetTableByCommand("DOCS_PRI_VOZ_SPEC_GLINE_LIST_LOAD_V2", C_RskladConnectionString, listParam.ToArray, CommandType.StoredProcedure)
+        Try
+            dtApp = DBHelper.GetTableByCommand("DOCS_PRI_VOZ_SPEC_GLINE_LIST_LOAD_V2", C_RskladConnectionString, listParam.ToArray, CommandType.StoredProcedure)
+            'If printExcel.pvId = 1657790 Then
+            '    Dim rn As Cell = "DATE1"
+            'End If
+        Catch ex As Exception
+            responseData.IsError = True
+            responseData.ErrorText = CSKLAD.noPaperAPIException.PrintExcelApp
+            Throw New Exception()
+        End Try
 
         Dim cntRow As Integer = dtApp.Rows.Count
 
@@ -510,9 +544,8 @@ Public Class Print
                             rowIndexPaste += rowIndexSum
                             k += 1
                         End If
+                        'If printExcel.pvId = 1657790 Then ws.Range($"AQ{rowIndexPaste}").Value = item("drod")
                     Next
-
-                    'Dim rn As Cell = "DATE1"
                 Catch ex As Exception
                     responseData.IsError = True
                     responseData.ErrorText = CSKLAD.noPaperAPIException.PrintExcelApp
