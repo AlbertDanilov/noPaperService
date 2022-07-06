@@ -2,10 +2,20 @@
 Imports noPaperService_common.Helpers
 
 Public Class ECP
-    Public Shared Function Sign(thumbprint As String, signData As Byte()) As ReturnData
+    Public Shared Function Sign(thumbprint As String, FIO As String, signData As Byte()) As ReturnData
         Try
             Dim signedData As ReturnData
-            Dim sertificate As ReturnData = X509.selectSingleCertificate(thumbprint)
+            Dim sertificate As ReturnData = Nothing
+
+            If Not String.IsNullOrEmpty(FIO) Then
+                'поиск ЭЦП по ФИО
+                sertificate = X509.selectSingleCertificateByFIO(FIO)
+            End If
+
+            'если ФИО нет или по ФИО ничего не найдено
+            If sertificate Is Nothing OrElse Not sertificate.isSuccess Then
+                sertificate = X509.selectSingleCertificate(thumbprint)
+            End If
 
             If sertificate.isSuccess Then
                 If sertificate IsNot Nothing AndAlso sertificate.data IsNot Nothing Then
@@ -25,6 +35,8 @@ Public Class ECP
             Else
                 Console.WriteLine($"Ошибка: {sertificate.errorText}")
                 LogHelper.WriteLog($"Ошибка: {sertificate.errorText}")
+
+                Return Nothing
             End If
 
         Catch ex As Exception

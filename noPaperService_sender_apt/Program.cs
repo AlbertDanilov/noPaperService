@@ -81,6 +81,9 @@ namespace noPaperService_sender_apt
                                 {
                                     pv_id = item.pv_id,
                                     thumbprint = item.thumbprint,
+                                    apt_accepted_thumbprint = item.apt_accepted_thumbprint,
+                                    apt_accepted_kassir_id = item.apt_accepted_kassir_id,
+                                    FIO = item.FIO,
                                     json = jsonFile
                                 };
 

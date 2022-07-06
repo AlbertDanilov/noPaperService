@@ -286,12 +286,18 @@ namespace noPaperAPI_common.Helpers
             {
                 signItems = dt.AsEnumerable()
                             .GroupBy(x => new { 
-                                   pv_id = x.Field<Int64>("pv_id"),
-                                   thumbprint = x.Field<String>("thumbprint")
+                                                   pv_id = x.Field<Int64>("pv_id"),
+                                                   thumbprint = x.Field<String>("thumbprint"),
+                                                   apt_accepted_thumbprint = x.Field<String>("apt_accepted_thumbprint"),
+                                                   apt_accepted_kassir_id = x.Field<int>("apt_accepted_kassir_id"),
+                                                   FIO = x.Field<String>("FIO")
                             }).Select(y => new EcpSignData_aptSign
                             { 
                                 pv_id = y.Key.pv_id,
-                                thumbprint = y.Key.thumbprint
+                                thumbprint = y.Key.thumbprint,
+                                apt_accepted_thumbprint = y.Key.apt_accepted_thumbprint,
+                                apt_accepted_kassir_id = y.Key.apt_accepted_kassir_id,
+                                FIO = y.Key.FIO
                             }).ToList();
             }
             catch (Exception ex)

@@ -11,6 +11,9 @@ namespace noPaperService_common.Entities
     {
         public Int64 pv_id { get; set; }
         public String thumbprint { get; set; }
+        public String apt_accepted_thumbprint { get; set; }
+        public String FIO { get; set; }
+        public int apt_accepted_kassir_id { get; set; }
     }
 
     [Serializable()]
@@ -18,6 +21,9 @@ namespace noPaperService_common.Entities
     {
         public Int64 pv_id { get; set; }
         public String thumbprint { get; set; }
+        public String apt_accepted_thumbprint { get; set; }
+        public String FIO { get; set; }
+        public int apt_accepted_kassir_id { get; set; }
         public Byte[] json { get; set; }
     }
 }

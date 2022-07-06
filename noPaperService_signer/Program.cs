@@ -90,7 +90,7 @@ namespace noPaperAPI_robot2
                                     Console.WriteLine($"Received document [{doc.pv_id}] N{counterJson++}");
 
                                     //подписать
-                                    ReturnData p7s = ECP.Sign(doc.user_thumbprint, body.ToArray());
+                                    ReturnData p7s = ECP.Sign(doc.user_thumbprint, String.Empty, body.ToArray());
                                     Console.WriteLine($"Signed document [{doc.pv_id}]");
 
                                     EcpSignData_p7s p7sData = new EcpSignData_p7s() { pv_id = doc.pv_id, sign = (Byte[])p7s.data };
@@ -120,8 +120,10 @@ namespace noPaperAPI_robot2
                                     {
                                         Console.WriteLine($"Received aptSign document [{signData.pv_id}] N{counterJson++}");
 
+                                        String thumbForSign = String.IsNullOrEmpty(signData.apt_accepted_thumbprint) ? signData.thumbprint : signData.apt_accepted_thumbprint;
+
                                         //подписать
-                                        ReturnData p7s_apt = ECP.Sign(signData.thumbprint, body.ToArray());
+                                        ReturnData p7s_apt = ECP.Sign(thumbForSign, signData.FIO, body.ToArray());
 
                                         if (p7s_apt != null && p7s_apt.data != null)
                                         {

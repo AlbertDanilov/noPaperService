@@ -64,6 +64,73 @@ Public Class X509
             Return New ReturnData(False, Nothing, ex.Message)
         End Try
     End Function
+
+    Public Shared Function selectSingleCertificateByFIO(ByVal FIO As String) As ReturnData
+        Try
+            Dim store As New X509Store("My", StoreLocation.CurrentUser)
+            store.Open(OpenFlags.OpenExistingOnly Or OpenFlags.ReadWrite)
+
+            Dim fcollection As X509Certificate2Collection = CType(store.Certificates, X509Certificate2Collection)
+            Dim rez_fcollection As X509Certificate2Collection = New X509Certificate2Collection
+
+            Dim fio_arr As List(Of String) = FIO.Trim.Split(" ").ToList()
+
+            If fcollection.Count > 0 AndAlso fio_arr IsNot Nothing AndAlso fio_arr.Count > 0 Then
+                For Each item In fcollection
+                    Try
+                        Dim k As Integer = 0
+
+                        For Each fio_item In fio_arr
+                            If item.SubjectName.Name.Contains(fio_item) Then
+                                k += 1
+                            End If
+                        Next
+
+                        If k >= 3 Then
+                            rez_fcollection.Add(item)
+                        End If
+                    Catch ex As Exception
+                    End Try
+                Next
+            End If
+
+            If rez_fcollection.Count = 0 Then
+                store.Close()
+                store = New X509Store("My", StoreLocation.LocalMachine)
+                store.Open(OpenFlags.OpenExistingOnly Or OpenFlags.ReadWrite)
+
+                fcollection = CType(store.Certificates, X509Certificate2Collection)
+
+                If fcollection.Count > 0 AndAlso fio_arr IsNot Nothing AndAlso fio_arr.Count > 0 Then
+                    For Each item In fcollection
+                        Try
+                            Dim k As Integer = 0
+
+                            For Each fio_item In fio_arr
+                                If item.SubjectName.Name.Contains(fio_item) Then
+                                    k += 1
+                                End If
+                            Next
+
+                            If k >= 3 Then
+                                rez_fcollection.Add(item)
+                            End If
+                        Catch ex As Exception
+                        End Try
+                    Next
+                End If
+            End If
+
+            If rez_fcollection.Count > 0 Then
+                Return New ReturnData(True, rez_fcollection.Item(0), Nothing)
+            Else
+                Return New ReturnData(False, Nothing, "Сертификат не выбран")
+            End If
+        Catch ex As Exception
+            Return New ReturnData(False, Nothing, ex.Message)
+        End Try
+    End Function
+
     Public Class PKCS_7
         Public Shared Function GetSigners(ByVal sign As Byte()) As List(Of SignComponent)
             ' Объект, в котором будут происходить декодирование и проверка.
