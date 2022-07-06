@@ -68,13 +68,15 @@ Public Class Print
         printExcel.docFileNamePath = $"{mainPath}\{printExcel.docFileName}"
         printExcel.docFileNamePathExtension = $"{printExcel.docFileNamePath}.xlsx"
 
+        printExcel.pvId = pv.pv_id
+
         Dim listParam As New List(Of SqlParameter) From {
             New SqlParameter("@pv_id", printExcel.pvId)
         }
         Dim output As Boolean = False
 
         Try
-            'output = DBHelper.ExecuteNonQuery("DOCS_PRI_VOZ_TRANSIT_CHECK", C_RskladConnectionString, listParam.ToArray, CommandType.StoredProcedure, True)
+            output = DBHelper.ExecuteNonQuery("DOCS_PRI_VOZ_TRANSIT_CHECK", C_RskladConnectionString, listParam.ToArray, CommandType.StoredProcedure, True)
             'If printExcel.pvId = 1657790 Then
             '    Dim rn As Cell = "DATE1"
             'End If
@@ -159,7 +161,6 @@ Public Class Print
                 Dim rng As CellRange
 
                 printExcel.pvAgentPrintname = pv.pv_agent_printname
-                printExcel.pvId = pv.pv_id
                 printExcel.nomSklad = $"{pv.pv_nom}/ {pv.pv_sklad_iname} от {pv.pv_otr_date?.ToString("dd.MM.yyyy")}"
 
                 ws.Range("I1").Value = pv.pv_agent_printname
