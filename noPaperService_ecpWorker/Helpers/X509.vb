@@ -14,15 +14,14 @@ Public Class X509
         Try
             Dim store As New X509Store("My", StoreLocation.CurrentUser)
             store.Open(OpenFlags.OpenExistingOnly Or OpenFlags.ReadWrite)
+
             If store.Certificates.Count = 0 Then
                 store.Close()
                 store = New X509Store("My", StoreLocation.LocalMachine)
                 store.Open(OpenFlags.OpenExistingOnly Or OpenFlags.ReadWrite)
             End If
+
             Dim fcoll As X509Certificate2Collection = store.Certificates
-            'Dim fcollection As X509Certificate2Collection = CType(store.Certificates.Find(X509FindType.FindByKeyUsage,
-            '                                                                          X509KeyUsageFlags.DataEncipherment.ToString(),
-            '                                                                          True), X509Certificate2Collection)
             Dim ccoll As X509Certificate2Collection = X509Certificate2UI.SelectFromCollection(fcoll,
                                                                                           "Выберите сертификат",
                                                                                           "Выберите сертификат для подписи.",
