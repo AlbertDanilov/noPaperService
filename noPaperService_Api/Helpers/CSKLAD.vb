@@ -1,4 +1,4 @@
-﻿Namespace Entities
+﻿Namespace Helpers
     Public Class CSKLAD
 #Region "CONST_WORK_PROGRAMMS"
         Public Const c_WORK_PROG_ROZN As Integer = 1
@@ -21,6 +21,8 @@
             PrintDoc
             Json
             Jnvls
+            PrintExcelApp
+            ConertToPDF
         End Enum
 
     End Class

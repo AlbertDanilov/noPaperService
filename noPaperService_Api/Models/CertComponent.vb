@@ -1,4 +1,4 @@
-﻿Namespace Entities
+﻿Namespace Models
     Public Class CertComponent
         Public Property cert As Security.Cryptography.X509Certificates.X509Certificate2 = Nothing
         Public Property thumbprint As String = Nothing

@@ -1,4 +1,4 @@
-﻿Namespace Entities
+﻿Namespace Models
     Public Class ResponseData
         Public Property IsError As Boolean
         Public Property ErrorText As String

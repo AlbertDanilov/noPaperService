@@ -4,7 +4,7 @@ Imports System.IO
 Imports System.Security.Cryptography.Pkcs
 Imports Gma.QrCodeNet.Encoding
 Imports Gma.QrCodeNet.Encoding.Windows.Render
-Imports noPaperService_Api.Entities
+Imports noPaperService_Api.Models
 
 Namespace CreateStamps
     Public Class CreateStamps
@@ -70,7 +70,7 @@ Namespace CreateStamps
         End Function
 
         'Получение штампа
-        Public Shared Function GetStamp(ByVal signComponent As Entities.SignComponent, ByVal qrText As String) As Image
+        Public Shared Function GetStamp(ByVal signComponent As Models.SignComponent, ByVal qrText As String) As Image
             'Кисть
             Dim myBrush As System.Drawing.Brush = New SolidBrush(Drawing.Color.FromArgb(43, 87, 154))
             'Высота холста

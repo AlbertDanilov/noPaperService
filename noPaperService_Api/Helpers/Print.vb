@@ -1,10 +1,12 @@
-﻿Imports System.Drawing
+﻿Imports System.Data.SqlClient
+Imports System.Drawing
 Imports System.IO
 Imports DevExpress.Spreadsheet
 Imports DevExpress.XtraRichEdit
 Imports DevExpress.XtraRichEdit.API.Native
 Imports Newtonsoft.Json
-Imports noPaperService_Api.Entities
+Imports noPaperService_Api.Helpers
+Imports noPaperService_Api.Models
 
 Public Class Print
     Public Shared Function PrintDoc(mainPath As String, jsonFileNamePath As String, ByRef docFileName As String, ByRef docFileNamePath As String, docTemplateFileNamePath As String, ByRef docFileNamePathExtension As String)
@@ -57,7 +59,7 @@ Public Class Print
         Return docFile
     End Function
 
-    Public Shared Sub PrintExcelInvoice(mainPath As String, printExcel As PrintExcel, responseData As ResponseData)
+    Public Shared Sub PrintExcel_Invoice(mainPath As String, printExcel As PrintExcel, responseData As ResponseData)
         Dim json As String = File.ReadAllText(printExcel.jsonFileNamePath)
         Dim pv As noPaperService_common.Entities.EcpSignData_pv = JsonConvert.DeserializeObject(Of noPaperService_common.Entities.EcpSignData_pv)(json)
 
@@ -139,6 +141,10 @@ Public Class Print
                 Dim k = 1
                 Dim rng As CellRange
 
+                printExcel.pvAgentPrintname = pv.pv_agent_printname
+                printExcel.pvId = pv.pv_id
+                printExcel.nomSklad = $"{pv.pv_nom}/ {pv.pv_sklad_iname} от {pv.pv_otr_date?.ToString("dd.MM.yyyy")}"
+
                 ws.Range("I1").Value = pv.pv_agent_printname
 
                 If pv.pv_is_mark.Value > 0I Then
@@ -158,7 +164,7 @@ Public Class Print
                 rng.FillColor = Color.Gray
                 rng.Font.Color = Color.White
 
-                ws.Range("T19").Value = $"{pv.pv_nom}/ {pv.pv_sklad_iname}"
+                ws.Range("T19").Value = printExcel.nomSklad
                 ws.Range("AH19").Value = pv.pv_otr_date?.ToString("dd.MM.yyyy")
                 ws.Range("AN19").Value = pv.pv_otg_date?.ToString("dd.MM.yyyy")
 
@@ -166,8 +172,6 @@ Public Class Print
 
                 ws.Range("G21").Value = pv.pv_otv_fio
                 ws.Range("G22").Value = prim
-
-                printExcel.pvAgentPrintname = pv.pv_agent_printname
 
                 For Each pvs As noPaperService_common.Entities.EcpSignData_pvs In pv.pvsList
                     ws.Range($"A{rowIndexPaste}").Value = k
@@ -204,7 +208,7 @@ Public Class Print
 
                     If k < pv.pvsList.Count Then
                         ws.Rows.Insert(rowIndexFormat, rowIndexSum)
-                        ws.Range($"A{rowIndexFormat}").CopyFrom(ws.Range($"A{rowIndexPaste}:BI{rowIndexFormat - 1}"), PasteSpecial.Formats)
+                        ws.Range($"A{rowIndexFormat}").CopyFrom(ws.Range($"A27:BI31"), PasteSpecial.Formats)
                         rowIndexFormat += rowIndexSum
                         rowIndexPaste += rowIndexSum
                         k += 1
@@ -296,6 +300,7 @@ Public Class Print
                 ws.Range("SUM_NDS").Value = allSumNdsRozn
 
                 ws.Range("DATE1").Value = Date.Now.ToString("dd.MM.yyyy")
+                'Dim rn As Cell = "DATE1"
             Catch ex As Exception
                 responseData.IsError = True
                 responseData.ErrorText = CSKLAD.noPaperAPIException.PrintExcel
@@ -363,58 +368,65 @@ Public Class Print
                     ws.Range("A28").Value = $"Дата отгрузки: {pv.pv_otg_date?.ToString("dd.MM.yyyy")}"
 
                     'printExcel.pvAgentPrintname = pv.pv_agent_printname
-
+                    Dim notJNVLS As Boolean = False
                     For Each pvs As noPaperService_common.Entities.EcpSignData_pvs In pv.pvsList
-                        ws.Range($"A{rowIndexPaste}").Value = pvs.ttnsInfo.docs_p_mnn '1
-                        ws.Range($"G{rowIndexPaste}").Value = pvs.ttnsInfo.docs_p_tn '2
-                        ws.Range($"S{rowIndexPaste}").Value = pvs.ttnsInfo.ttns_seria '3
-                        ws.Range($"X{rowIndexPaste}").Value = pvs.ttnsInfo.docs_p_proizv '4
-                        ws.Range($"AF{rowIndexPaste}").Value = pvs.ttnsInfo.docs_p_prcena_proizv.Value '5
-                        ws.Range($"AJ{rowIndexPaste}").Value = pvs.ttnsInfo.docs_prcena_bnds.Value '6
-                        ws.Range($"AN{rowIndexPaste}").Value = pvs.ttnsInfo.docs_prcena_nds.Value '7
+                        If pvs.ttnsInfo.docs_p_jnvls = 1 Then
+                            ws.Range($"A{rowIndexPaste}").Value = pvs.ttnsInfo.docs_p_mnn '1
+                            ws.Range($"G{rowIndexPaste}").Value = pvs.ttnsInfo.docs_p_tn '2
+                            ws.Range($"S{rowIndexPaste}").Value = pvs.ttnsInfo.ttns_seria '3
+                            ws.Range($"X{rowIndexPaste}").Value = pvs.ttnsInfo.docs_p_proizv '4
+                            ws.Range($"AF{rowIndexPaste}").Value = pvs.ttnsInfo.docs_p_prcena_proizv.Value '5
+                            ws.Range($"AJ{rowIndexPaste}").Value = pvs.ttnsInfo.docs_prcena_bnds.Value '6
+                            ws.Range($"AN{rowIndexPaste}").Value = pvs.ttnsInfo.docs_prcena_nds.Value '7
 
-                        ws.Range($"AW{rowIndexPaste}").Value = pvs.pvs_pcena_bnds.Value '10
-                        ws.Range($"AN{rowIndexPaste}").Value = pvs.pvs_pcena_nds.Value '11
-                        ws.Range($"BA{rowIndexPaste}").Value = pvs.ttnsInfo.nac_prc_val_p.Value '12
-                        ws.Range($"BE{rowIndexPaste}").Value = pvs.ttnsInfo.nac_sum_val_p2.Value '13
-                        ws.Range($"BG{rowIndexPaste}").Value = pvs.ttnsInfo.docs_ocena_bnds.Value '15
-                        ws.Range($"BQ{rowIndexPaste}").Value = pvs.ttnsInfo.ttns_ocena_nds.Value '16
-                        ws.Range($"BM{rowIndexPaste}").Value = pvs.ttnsInfo.nac_prc_val.Value '17
-                        ws.Range($"BW{rowIndexPaste}").Value = pvs.ttnsInfo.nac_sum_val.Value '18
-                        ws.Range($"CA{rowIndexPaste}").Value = pvs.ttnsInfo.nac_prc_rozn_val.Value '19
-                        ws.Range($"CC{rowIndexPaste}").Value = pvs.ttnsInfo.nac_sum_rozn_val.Value '20
-                        ws.Range($"CI{rowIndexPaste}").Value = pvs.ttnsInfo.rcena_bnds.Value '22
+                            ws.Range($"AW{rowIndexPaste}").Value = pvs.pvs_pcena_bnds.Value '10
+                            ws.Range($"AN{rowIndexPaste}").Value = pvs.pvs_pcena_nds.Value '11
+                            ws.Range($"BA{rowIndexPaste}").Value = pvs.ttnsInfo.nac_prc_val_p.Value '12
+                            ws.Range($"BE{rowIndexPaste}").Value = pvs.ttnsInfo.nac_sum_val_p2.Value '13
+                            ws.Range($"BG{rowIndexPaste}").Value = pvs.ttnsInfo.docs_ocena_bnds.Value '15
+                            ws.Range($"BQ{rowIndexPaste}").Value = pvs.ttnsInfo.ttns_ocena_nds.Value '16
+                            ws.Range($"BM{rowIndexPaste}").Value = pvs.ttnsInfo.nac_prc_val.Value '17
+                            ws.Range($"BW{rowIndexPaste}").Value = pvs.ttnsInfo.nac_sum_val.Value '18
+                            ws.Range($"CA{rowIndexPaste}").Value = pvs.ttnsInfo.nac_prc_rozn_val.Value '19
+                            ws.Range($"CC{rowIndexPaste}").Value = pvs.ttnsInfo.nac_sum_rozn_val.Value '20
+                            ws.Range($"CI{rowIndexPaste}").Value = pvs.ttnsInfo.rcena_bnds.Value '22
 
-                        If k < pv.pvsList.Count Then
-                            Dim temprowIndexPaste = rowIndexPaste
-                            temprowIndexPaste += rowIndexSum
+                            If k < pv.pvsList.Count Then
+                                Dim temprowIndexPaste = rowIndexPaste
+                                temprowIndexPaste += rowIndexSum
 
-                            If temprowIndexPaste + rowIndexSum > pageLenght Then
-                                ws.Rows.Insert(rowIndexFormat, pageNameLenght) 'смещаем вниз на одну позицию, чтобы добавить пустую строку
-                                ws.Range($"A{rowIndexFormat}").CopyFrom(ws.Range("A28:CL28"), PasteSpecial.All)
-                                rowIndexFormat += pageNameLenght
-                                rowIndexPaste += pageNameLenght
-                                ws.Rows.Insert(rowIndexFormat, headTableLenght)
-                                ws.Range($"A{rowIndexFormat}").CopyFrom(ws.Range("A29:CL38"), PasteSpecial.All)
-                                rowIndexFormat += headTableLenght
-                                rowIndexPaste += headTableLenght
+                                If temprowIndexPaste + rowIndexSum > pageLenght Then
+                                    ws.Rows.Insert(rowIndexFormat, pageNameLenght) 'смещаем вниз на одну позицию, чтобы добавить пустую строку
+                                    ws.Range($"A{rowIndexFormat}").CopyFrom(ws.Range("A28:CL28"), PasteSpecial.All)
+                                    rowIndexFormat += pageNameLenght
+                                    rowIndexPaste += pageNameLenght
+                                    ws.Rows.Insert(rowIndexFormat, headTableLenght)
+                                    ws.Range($"A{rowIndexFormat}").CopyFrom(ws.Range("A29:CL38"), PasteSpecial.All)
+                                    rowIndexFormat += headTableLenght
+                                    rowIndexPaste += headTableLenght
+                                End If
+
+                                ws.Rows.Insert(rowIndexFormat, rowIndexSum)
+                                ws.Range($"A{rowIndexFormat}").CopyFrom(ws.Range("A39:CL42"), PasteSpecial.Formats)
+                                rowIndexFormat += rowIndexSum
+                                rowIndexPaste += rowIndexSum
+                                k += 1
+
+                                If rowIndexPaste + rowIndexSum > pageLenght Then
+                                    pageLenght += pageLenghtSum
+                                    pageLenghtRow += pageLenghtSum
+                                    ws.HorizontalPageBreaks.Add(rowIndexPaste - headTableLenght - pageNameLenght - 1) ' разрыв страницы, если превышает определенную длину
+                                    listRng.Add($"CL{rowIndexPaste - headTableLenght - pageNameLenght}")
+                                End If
                             End If
-
-                            ws.Rows.Insert(rowIndexFormat, rowIndexSum)
-                            ws.Range($"A{rowIndexFormat}").CopyFrom(ws.Range("A39:CL42"), PasteSpecial.Formats)
-                            rowIndexFormat += rowIndexSum
-                            rowIndexPaste += rowIndexSum
-                            k += 1
-
-                            If rowIndexPaste + rowIndexSum > pageLenght Then
-                                pageLenght += pageLenghtSum
-                                pageLenghtRow += pageLenghtSum
-                                ws.HorizontalPageBreaks.Add(rowIndexPaste - headTableLenght - pageNameLenght - 1) ' разрыв страницы, если превышает определенную длину
-                                listRng.Add($"CL{rowIndexPaste - headTableLenght - pageNameLenght}")
-                            End If
+                        Else
+                            notJNVLS = True
                         End If
-
                     Next
+
+                    If notJNVLS Then
+                        ws.DeleteCells(ws.Range($"A{rowIndexPaste}:CL{rowIndexFormat - 1}"), DeleteMode.EntireRow)
+                    End If
 
                     Dim cellrng As CellRange = ws.Range("ROW_LIST")
                     If cellrng.BottomRowIndex >= pageLenghtRow - 1 Then
@@ -453,4 +465,70 @@ Public Class Print
             Throw New Exception()
         End If
     End Sub
+
+    Public Shared Function PrintExcel_InvoiceApplication(mainPath As String, printExcel As PrintExcel, responseData As ResponseData)
+        Const C_RskladConnectionString = "User ID=sa;Password=r12sql141007;Initial Catalog=rsklad;Data Source=192.168.0.35"
+
+        Dim listParam As New List(Of SqlParameter) From {
+            New SqlParameter("@pv_id", printExcel.pvId)
+        }
+
+        Dim dtApp As DataTable = DBHelper.GetTableByCommand("DOCS_PRI_VOZ_SPEC_GLINE_LIST_LOAD_V2", C_RskladConnectionString, listParam.ToArray, CommandType.StoredProcedure)
+
+        Dim cntRow As Integer = dtApp.Rows.Count
+
+        If cntRow > 0 Then
+            printExcel.docFileName = $"{printExcel.nameFile} {printExcel.pvId} от {Date.Now:dd.MM.yyyy HH.mm.ss}"
+            printExcel.docFileNamePath = $"{mainPath}\{printExcel.docFileName}"
+            printExcel.docFileNamePathExtension = $"{printExcel.docFileNamePath}.xlsx"
+
+            Using wb As New Workbook()
+                wb.LoadDocument(printExcel.docTemplateFileNamePath)
+                Dim ws As Worksheet = wb.Worksheets(0)
+                Dim rowIndexPaste As Integer = 5
+                Dim rowIndexFormat As Integer = 8
+                Dim rowIndexSum As Integer = 3
+
+                Try
+                    Dim k = 1
+
+                    ws.Range($"A1").Value = $"Приложение к накладной № {printExcel.nomSklad}"
+
+                    For Each item As DataRow In dtApp.Rows
+                        ws.Range($"A{rowIndexPaste}").Value = k
+
+                        ws.Range($"D{rowIndexPaste}").Value = $"{item("docs_p_tn")} {item("docs_p_fv_doz")} {item("docs_p_proizv")}"
+                        ws.Range($"AE{rowIndexPaste}").Value = item("fio").ToString()
+                        ws.Range($"AQ{rowIndexPaste}").Value = item("drod").ToString()
+                        ws.Range($"AY{rowIndexPaste}").Value = item("phone").ToString()
+                        ws.Range($"BG{rowIndexPaste}").Value = item("zquant").ToString()
+
+                        If k < cntRow Then
+                            ws.Rows.Insert(rowIndexFormat, rowIndexSum)
+                            ws.Range($"A{rowIndexFormat}").CopyFrom(ws.Range($"A5:BI7"), PasteSpecial.Formats)
+                            rowIndexFormat += rowIndexSum
+                            rowIndexPaste += rowIndexSum
+                            k += 1
+                        End If
+                    Next
+
+                    'Dim rn As Cell = "DATE1"
+                Catch ex As Exception
+                    responseData.IsError = True
+                    responseData.ErrorText = CSKLAD.noPaperAPIException.PrintExcelApp
+                    Throw New Exception()
+                Finally
+                    wb.EndUpdate()
+                End Try
+
+                wb.Calculate()
+
+                wb.SaveDocument(printExcel.docFileNamePathExtension, DevExpress.Spreadsheet.DocumentFormat.OpenXml)
+
+                Return True
+            End Using
+        End If
+
+        Return False
+    End Function
 End Class

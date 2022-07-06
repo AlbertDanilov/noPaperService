@@ -1,9 +1,9 @@
 ﻿Namespace Helpers
     Public Class CertComponent
-        Inherits Entities.CertComponent
+        Inherits Models.CertComponent
 
-        Public Shared Function [New](cert As System.Security.Cryptography.X509Certificates.X509Certificate2) As Entities.CertComponent
-            Dim CC As New Entities.CertComponent
+        Public Shared Function [New](cert As System.Security.Cryptography.X509Certificates.X509Certificate2) As Models.CertComponent
+            Dim CC As New Models.CertComponent
             If cert IsNot Nothing Then
                 CC.cert = cert
                 CC.thumbprint = cert.Thumbprint

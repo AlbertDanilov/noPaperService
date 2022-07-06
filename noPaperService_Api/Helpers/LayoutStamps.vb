@@ -3,7 +3,7 @@ Imports System.IO
 Imports DevExpress.Spreadsheet
 Imports DevExpress.XtraRichEdit
 Imports iTextSharp.text.pdf
-Imports noPaperService_Api.Entities
+Imports noPaperService_Api.Models
 
 Namespace Helpers
     Public Class LayoutStamps
@@ -135,8 +135,8 @@ Namespace Helpers
             End Using
         End Function
 
-        Public Shared Function LayoutStampsExcelBook(savePath As String, layoutStamps As Entities.LayoutStamps, printExcel As PrintExcel, responseData As ResponseData) 'Книжная ориентация
-            Dim pdfFileNamePathExtension = $"{savePath}\{printExcel.docFileName}.pdf"
+        Public Shared Function LayoutStampsExcelBook(savePath As String, layoutStamps As Models.LayoutStamps, printExcel As PrintExcel, responseData As ResponseData) 'Книжная ориентация
+            layoutStamps.pdfFileNamePathExtension = $"{savePath}\{printExcel.docFileName}.pdf"
 
             'Список для штампов
             Dim stampList As List(Of Bitmap)
@@ -159,7 +159,7 @@ Namespace Helpers
                     mybytes = inputPdfStream.ToArray
 
                     Try
-                        Using outputPdfStream As New FileStream(pdfFileNamePathExtension, FileMode.Create, FileAccess.Write, FileShare.None)
+                        Using outputPdfStream As New FileStream(layoutStamps.pdfFileNamePathExtension, FileMode.Create, FileAccess.Write, FileShare.None)
                             Using reader = New PdfReader(mybytes)
                                 Using stamper = New PdfStamper(reader, outputPdfStream)
                                     If stampList.Count > 0 Then
@@ -183,58 +183,6 @@ Namespace Helpers
                                             Dim pdfcontent = stamper.GetOverContent(index)
                                             pdfcontent.AddImage(imagetext)
                                         Next
-#End Region
-
-#Region "печать приемки"
-                                        'Dim _image1 As iTextSharp.text.Image = iTextSharp.text.Image.GetInstance(CreateStamps.CreateStamps.ImageToBytes(_stampList(0)))
-                                        'Dim _parser = New parser.PdfReaderContentParser(reader)
-                                        'Dim _finder = _parser.ProcessContent(reader.NumberOfPages, New parser.TextMarginFinder())
-                                        'Dim _lastPage As iTextSharp.text.Rectangle = reader.GetPageSize(reader.NumberOfPages)
-                                        'Dim _maxHeightPage = _lastPage.Height
-                                        'Dim _maxVerticalHeightPage = 792
-                                        'Dim _lastElemHeight As Integer
-                                        'Try
-                                        '    _lastElemHeight = _finder.GetHeight()
-                                        'Catch ex As Exception
-                                        '    Throw ex
-                                        'End Try
-
-                                        'Dim _newWidth As Integer
-                                        'Dim _newHeight As Integer
-                                        'Dim _isNewPage As Boolean
-                                        'If _maxHeightPage > _lastElemHeight + 280 Then
-                                        '    _newWidth = 17
-                                        '    _newHeight = 17
-                                        '    _isNewPage = False
-                                        'Else
-                                        '    _isNewPage = True
-                                        '    Dim rectangle = reader.GetPageSize(1)
-                                        '    stamper.InsertPage(reader.NumberOfPages + 1, rectangle)
-                                        '    Try
-                                        '        stamper.GetOverContent(reader.NumberOfPages - 1).AddImage(imagetext)
-                                        '    Catch ex As Exception
-                                        '        Throw ex
-                                        '    End Try
-                                        '    _newWidth = 17
-                                        '    _newHeight = _maxVerticalHeightPage - (10 + 120)
-                                        'End If
-                                        'Dim _pdfContentByte As PdfContentByte = stamper.GetOverContent(reader.NumberOfPages)
-                                        ''Позиция изображения
-                                        '_image1.SetAbsolutePosition(_newWidth, _newHeight + 126)
-                                        ''Размер изображения
-                                        '_image1.ScaleAbsolute(280, 120)
-                                        '_pdfContentByte.AddImage(_image1)
-                                        'If _stampList.Count > 1 Then
-                                        'Dim _image2 As iTextSharp.text.Image = iTextSharp.text.Image.GetInstance(CreateStamps.CreateStamps.ImageToBytes(_stampList(_stampList.Count - 1)))
-                                        ''Позиция изображения
-                                        'If _isNewPage Then
-                                        '    _image2.SetAbsolutePosition(reader.GetPageSize(reader.NumberOfPages).Width - (280 + 17), _maxVerticalHeightPage - (10 + 120))
-                                        'Else
-                                        '    _image2.SetAbsolutePosition(reader.GetPageSize(reader.NumberOfPages).Width - (280 + 17), 17 + 126)
-                                        'End If
-                                        ''Размер изображения
-                                        '_image2.ScaleAbsolute(280, 120)
-                                        '_pdfContentByte.AddImage(_image2)
 #End Region
 
 #Region "печать эцп"
@@ -326,7 +274,7 @@ Namespace Helpers
                             End Using
                         End Using
                         'pdfFile = File.ReadAllBytes(pdfFileNamePathExtension)
-                        layoutStamps.pdfFiles.Add(pdfFileNamePathExtension)
+                        layoutStamps.pdfFiles.Add(layoutStamps.pdfFileNamePathExtension)
 
                         If File.Exists(printExcel.docFileNamePathExtension) Then
                             File.Delete(printExcel.docFileNamePathExtension)
@@ -339,9 +287,9 @@ Namespace Helpers
                         If File.Exists(printExcel.docFileNamePathExtension) Then
                             File.Delete(printExcel.docFileNamePathExtension)
                         End If
-                        If File.Exists(pdfFileNamePathExtension) Then
+                        If File.Exists(layoutStamps.pdfFileNamePathExtension) Then
                             'pdfFile = File.ReadAllBytes(pdfFileNamePathExtension)
-                            File.Delete(pdfFileNamePathExtension)
+                            File.Delete(layoutStamps.pdfFileNamePathExtension)
                         End If
                         responseData.IsError = True
                         responseData.ErrorText = CSKLAD.noPaperAPIException.LayoutStamp
@@ -352,7 +300,7 @@ Namespace Helpers
             Return layoutStamps.pdfFiles
         End Function
 
-        Public Shared Function LayoutStampsExcel(savePath As String, layoutStamps As Entities.LayoutStamps, printExcel As PrintExcel, responseData As ResponseData) 'Альбомная ориентация
+        Public Shared Function LayoutStampsExcel(savePath As String, layoutStamps As Models.LayoutStamps, printExcel As PrintExcel, responseData As ResponseData) 'Альбомная ориентация
             Dim pdfFileNamePathExtension = $"{savePath}\{printExcel.docFileName}.pdf"
 
             'Список для штампов

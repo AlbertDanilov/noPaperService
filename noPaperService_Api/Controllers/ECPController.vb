@@ -4,7 +4,7 @@ Imports System.Net.Http
 Imports System.Net.Http.Headers
 Imports System.Web.Http
 Imports DevExpress.Pdf
-Imports noPaperService_Api.Entities
+Imports noPaperService_Api.Models
 Imports noPaperService_Api.Helpers
 Imports noPaperService_ecpWorker
 
@@ -82,7 +82,7 @@ Namespace Controllers
                 '    headerColor = "red"
                 'End If
 
-                For Each signComponent As Entities.SignComponent In CreateStamps.CreateStamps.GetSigners(sign)
+                For Each signComponent As Models.SignComponent In CreateStamps.CreateStamps.GetSigners(sign)
 
                     response.Content = New StringContent("<html>
                                                           <head>
@@ -151,16 +151,16 @@ Namespace Controllers
                 Dim responseData As New ResponseData
                 Dim invoice As New Invoice
                 Dim printExcel As New PrintExcel
-                Dim layoutStamps As New Entities.LayoutStamps
-
-                printExcel.nameFile = "Накладная"
+                Dim layoutStamps As New Models.LayoutStamps
+                Dim appPDF As String = String.Empty
+                Dim i = 0
 
                 Using pdfDocumentProcessor As New PdfDocumentProcessor()
-                    Dim i = 0
-
                     For Each pv_id As Integer In listPV
+                        'i += 1
                         Try
                             Dim signedFileByte As Byte()
+                            printExcel.nameFile = "Накладная"
                             printExcel.docTemplateFileNamePath = $"{mainPath}\{printExcel.nameFile}.xlsx"
 
                             Try
@@ -181,19 +181,50 @@ Namespace Controllers
                                 Throw New Exception()
                             End Try
 
-                            Print.PrintExcelInvoice(mainPath, printExcel, responseData)
+                            Print.PrintExcel_Invoice(mainPath, printExcel, responseData)
                             Helpers.LayoutStamps.LayoutStampsExcelBook(savePath, layoutStamps, printExcel, responseData)
-
                             endFile = $"{savePath}\{printExcel.nameFile} {jsonPV}.pdf"
 
+                            printExcel.nameFile = "Приложение"
+                            printExcel.docTemplateFileNamePath = $"{mainPath}\{printExcel.nameFile}.xlsx"
+
+                            Dim app As Boolean = Print.PrintExcel_InvoiceApplication(mainPath, printExcel, responseData)
+                            'If app Then
+                            '    appPDF = ConvertToPDF.ConvertToPDFExcelBook(mainPath, layoutStamps, printExcel, responseData)
+                            'End If
+
                             If listPV.Count = 1 Then
-                                endFile = layoutStamps.pdfFiles(i)
+                                If app Then
+                                    pdfDocumentProcessor.CreateEmptyDocument(endFile)
+                                    pdfDocumentProcessor.AppendDocument(layoutStamps.pdfFiles(i))
+                                    appPDF = ConvertToPDF.ConvertToPDFExcelBook(mainPath, layoutStamps, printExcel, responseData)
+                                    pdfDocumentProcessor.AppendDocument(appPDF)
+
+                                    If File.Exists(appPDF) Then
+                                        File.Delete(appPDF)
+                                    End If
+
+                                    If File.Exists(layoutStamps.pdfFiles(i)) Then
+                                        File.Delete(layoutStamps.pdfFiles(i))
+                                    End If
+                                Else
+                                    endFile = layoutStamps.pdfFiles(i)
+                                End If
                             Else
                                 If i = 0 Then
                                     pdfDocumentProcessor.CreateEmptyDocument(endFile)
                                     pdfDocumentProcessor.AppendDocument(layoutStamps.pdfFiles(i))
                                 Else
                                     pdfDocumentProcessor.AppendDocument(layoutStamps.pdfFiles(i))
+                                End If
+
+                                If app Then
+                                    appPDF = ConvertToPDF.ConvertToPDFExcelBook(mainPath, layoutStamps, printExcel, responseData)
+                                    pdfDocumentProcessor.AppendDocument(appPDF)
+
+                                    If File.Exists(appPDF) Then
+                                        File.Delete(appPDF)
+                                    End If
                                 End If
 
                                 If File.Exists(layoutStamps.pdfFiles(i)) Then
@@ -220,6 +251,14 @@ Namespace Controllers
                                     invoice.ErrorText = "Электронный документ в процессе формирования"
                                     invoice.IsError = True
                                     errorPV.Add(pv_id)
+                                ElseIf responseData.ErrorText = CSKLAD.noPaperAPIException.PrintExcelApp Then
+                                    invoice.ErrorText = "Ошибка в Excel при печати приложения"
+                                    invoice.IsError = True
+                                    errorPV.Clear()
+                                ElseIf responseData.ErrorText = CSKLAD.noPaperAPIException.ConertToPDF Then
+                                    invoice.ErrorText = "Ошибка при создании PDF приложения"
+                                    invoice.IsError = True
+                                    errorPV.Clear()
                                 End If
                             Else
                                 errorPV.Add(pv_id)
@@ -229,15 +268,24 @@ Namespace Controllers
                     Next
                 End Using
 
-                If endFile IsNot String.Empty Then pdfByte = File.ReadAllBytes(endFile)
+                'If endFile IsNot String.Empty Then pdfByte = File.ReadAllBytes(endFile)
+
+                If File.Exists(endFile) Then
+                    pdfByte = File.ReadAllBytes(endFile)
+                    File.Delete(endFile)
+                    'If File.Exists(layoutStamps.pdfFiles(i)) Then
+                    '    File.Delete(layoutStamps.pdfFiles(i))
+                    'End If
+                    If File.Exists(layoutStamps.pdfFileNamePathExtension) Then
+                        File.Delete(layoutStamps.pdfFileNamePathExtension)
+                    End If
+                ElseIf File.Exists(layoutStamps.pdfFileNamePathExtension) Then
+                    File.Delete(layoutStamps.pdfFileNamePathExtension)
+                End If
 
                 invoice.OkPV = okPV
                 invoice.ErrorPV = errorPV
                 invoice.PdfByte = pdfByte
-
-                If File.Exists(endFile) Then
-                    File.Delete(endFile)
-                End If
 
                 Dim jsonResponse As String = Utf8Json.JsonSerializer.ToJsonString(invoice)
 
@@ -269,7 +317,7 @@ Namespace Controllers
                 Dim responseData As New ResponseData
                 Dim invoice As New Invoice
                 Dim printExcel As New PrintExcel
-                Dim layoutStamps As New Entities.LayoutStamps
+                Dim layoutStamps As New Models.LayoutStamps
 
                 printExcel.nameFile = "Протокол согласования цен"
 
@@ -359,6 +407,8 @@ Namespace Controllers
 
                 If File.Exists(endFile) Then
                     File.Delete(endFile)
+                ElseIf File.Exists(layoutStamps.pdfFileNamePathExtension) Then
+                    File.Delete(layoutStamps.pdfFileNamePathExtension)
                 End If
 
                 Dim jsonResponse As String = Utf8Json.JsonSerializer.ToJsonString(invoice)

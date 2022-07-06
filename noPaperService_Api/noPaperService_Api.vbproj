@@ -22,8 +22,8 @@
     <UseIISExpress>true</UseIISExpress>
     <Use64BitIISExpress />
     <IISExpressSSLPort>44383</IISExpressSSLPort>
-    <IISExpressAnonymousAuthentication />
-    <IISExpressWindowsAuthentication />
+    <IISExpressAnonymousAuthentication>enabled</IISExpressAnonymousAuthentication>
+    <IISExpressWindowsAuthentication>disabled</IISExpressWindowsAuthentication>
     <IISExpressUseClassicPipelineMode />
     <UseGlobalApplicationHostFile />
     <NuGetPackageImportStamp>
@@ -282,20 +282,22 @@
     <Compile Include="Areas\HelpPage\SampleGeneration\TextSample.vb" />
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.vb" />
     <Compile Include="Controllers\ECPController.vb" />
-    <Compile Include="DAL\Entities\CertComponent.vb" />
-    <Compile Include="DAL\Entities\LayoutStamps.vb" />
-    <Compile Include="DAL\Entities\PrintExcel.vb" />
-    <Compile Include="DAL\Entities\Invoice.vb" />
-    <Compile Include="DAL\Entities\ProgramEntities.vb" />
-    <Compile Include="DAL\Entities\FilePathComponent.vb" />
-    <Compile Include="DAL\Entities\SignComponent.vb" />
-    <Compile Include="DAL\Helpers\CertComponent.vb" />
-    <Compile Include="DAL\Helpers\CreateStamps.vb" />
-    <Compile Include="DAL\Helpers\FilePathComponent.vb" />
-    <Compile Include="DAL\Helpers\LayoutStamps.vb" />
-    <Compile Include="DAL\Helpers\Print.vb" />
-    <Compile Include="DAL\Entities\CSKLAD.vb" />
-    <Compile Include="DAL\Helpers\SignComponent.vb" />
+    <Compile Include="Helpers\DBHelper.vb" />
+    <Compile Include="Helpers\ConvertToPDF.vb" />
+    <Compile Include="Models\CertComponent.vb" />
+    <Compile Include="Models\LayoutStamps.vb" />
+    <Compile Include="Models\PrintExcel.vb" />
+    <Compile Include="Models\Invoice.vb" />
+    <Compile Include="Models\ProgramEntities.vb" />
+    <Compile Include="Models\FilePathComponent.vb" />
+    <Compile Include="Models\SignComponent.vb" />
+    <Compile Include="Helpers\CertComponent.vb" />
+    <Compile Include="Helpers\CreateStamps.vb" />
+    <Compile Include="Helpers\FilePathComponent.vb" />
+    <Compile Include="Helpers\LayoutStamps.vb" />
+    <Compile Include="Helpers\Print.vb" />
+    <Compile Include="Helpers\CSKLAD.vb" />
+    <Compile Include="Helpers\SignComponent.vb" />
     <Compile Include="Global.asax.vb">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -402,7 +404,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Models\" />
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>

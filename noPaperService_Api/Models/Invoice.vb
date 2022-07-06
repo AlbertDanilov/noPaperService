@@ -1,4 +1,4 @@
-﻿Namespace Entities
+﻿Namespace Models
     Public Class Invoice
         Public Property OkPV As List(Of Integer)
         Public Property ErrorPV As List(Of Integer)

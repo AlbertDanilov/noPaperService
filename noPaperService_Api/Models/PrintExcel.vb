@@ -1,4 +1,4 @@
-﻿Namespace Entities
+﻿Namespace Models
     Public Class PrintExcel
         Public Property jsonFileNamePath As String
         Public Property docFileName As String = String.Empty
@@ -7,5 +7,7 @@
         Public Property docFileNamePathExtension As String = String.Empty
         Public Property nameFile As String = String.Empty
         Public Property pvAgentPrintname As String = String.Empty
+        Public Property pvId As Long
+        Public Property nomSklad As String = String.Empty
     End Class
 End Namespace

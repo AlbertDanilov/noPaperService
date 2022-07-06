@@ -1,4 +1,4 @@
-﻿Namespace Entities
+﻿Namespace Models
     Public Class FilePathComponent
         Public Property name As String
         Public Property etype As EtpDocTypes
