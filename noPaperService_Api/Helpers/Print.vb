@@ -271,7 +271,7 @@ Public Class Print
                     ws.HorizontalPageBreaks.Add(cellrng.BottomRowIndex - pageBreak) 'разрыв страницы на итоговую часть
                 End If
 
-                ws.Range("OTPUSK_PRODUCE").Value = pv.pv_sklad_mol
+                'ws.Range("OTPUSK_PRODUCE").Value = pv.pv_sklad_mol
 
                 ws.Range("ITOGO").Value = $"ИТОГО ПО ТТН № {pv.pv_nom}/ {pv.pv_sklad_name} ОТ {pv.pv_otr_date?.ToString("dd.MM.yyyy")} отгр {pv.pv_otg_date?.ToString("dd.MM.yyyy")}"
 
@@ -323,11 +323,15 @@ Public Class Print
                 ws.Range("SUM_ROZN").Value = allSumRoznNds
                 ws.Range("SUM_NDS").Value = allSumNdsRozn
 
-                ws.Range("DATE1").Value = Date.Now.ToString("dd.MM.yyyy")
+                'ws.Range("DATE1").Value = Date.Now.ToString("dd.MM.yyyy")
 
                 'If printExcel.pvId = 1657790 Then
                 'Dim rn As Cell = "DATE1"
                 'End If
+
+                ws.Range("OTPUSK_ALLOW").Value = "нач. отдела"
+                ws.Range("OTPUSK_ALLOW_FIO").Value = pv.pv_otv_fio
+
             Catch ex As Exception
                 responseData.IsError = True
                 responseData.ErrorText = CSKLAD.noPaperAPIException.PrintExcel

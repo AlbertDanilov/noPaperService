@@ -25,5 +25,15 @@
             ConertToPDF
         End Enum
 
+#Region "CONST_PV_OPL_TYPES"
+        Public Const c_opl_rozn As Integer = 1
+        Public Const c_opl_otp As Integer = 2
+        Public Const c_opl_opt As Integer = 3
+        Public Const c_opl_region As Integer = 4
+        Public Const c_opl_onls As Integer = 5
+        Public Const c_opl_noz As Integer = 6
+        Public Const c_opl_MZ_RT As Integer = 7
+#End Region
+
     End Class
 End Namespace
