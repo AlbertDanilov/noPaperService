@@ -52,14 +52,7 @@ namespace noPaperService_sender_apt
 
             if (sendItems != null && sendItems.Count > 0)
             {
-                var factory = new ConnectionFactory()
-                {
-                    HostName = "192.168.0.25",
-                    UserName = "artisUser",
-                    Password = "250595",
-                    VirtualHost = "/",
-                    Port = 5672
-                };
+                var factory = RMQConnection.getInstance();
 
                 try
                 {

@@ -59,16 +59,9 @@ namespace noPaperAPI
             //список отправленных документов
             List<long> sendedIds = new List<long>();
 
-            if (docItems != null && docItems.Count > 0) {           
+            if (docItems != null && docItems.Count > 0) {
 
-                var factory = new ConnectionFactory()
-                {
-                    HostName = "192.168.0.25",
-                    UserName = "artisUser",
-                    Password = "250595",
-                    VirtualHost = "/",
-                    Port = 5672
-                };
+                var factory = RMQConnection.getInstance();
 
                 try {
                     using (var connection = factory.CreateConnection())

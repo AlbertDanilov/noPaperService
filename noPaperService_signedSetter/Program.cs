@@ -40,14 +40,7 @@ namespace noPaperService_signedSetter
             LogHelper.WriteLog(t);
             Console.WriteLine("");
 
-            var factory = new ConnectionFactory()
-            {
-                HostName = "192.168.0.25",
-                UserName = "artisUser",
-                Password = "250595",
-                VirtualHost = "/",
-                Port = 5672
-            };
+            var factory = RMQConnection.getInstance();
 
             string routingKeySigned = "signedIds";
 

@@ -50,14 +50,7 @@ namespace noPaperAPI_robot3
             LogHelper.WriteLog(t);
             Console.WriteLine("");
 
-            var factory = new ConnectionFactory()
-            {
-                HostName = "192.168.0.25",
-                UserName = "artisUser",
-                Password = "250595",
-                VirtualHost = "/",
-                Port = 5672
-            };
+            var factory = RMQConnection.getInstance();
 
             var counterJson = 1;
             var counterP7s = 1;
