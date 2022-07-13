@@ -24,5 +24,7 @@ namespace noPaperService_common.Helpers
 
             return instance;
         }
+
+        private RMQConnection() { }
     }
 }

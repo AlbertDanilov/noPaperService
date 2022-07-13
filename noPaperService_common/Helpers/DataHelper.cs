@@ -21,29 +21,7 @@ namespace noPaperAPI_common.Helpers
             DataTable dt = new DataTable("T");
             List<EcpSignData_pv> docItems = null;
 
-            try
-            {
-                using (var con = new SqlConnection(ConnectionSting))
-                {
-                    using (var cmd = new SqlCommand("", con))
-                    {
-                        using (var da = new SqlDataAdapter(cmd))
-                        {
-                            da.SelectCommand.CommandType = CommandType.StoredProcedure;
-                            da.SelectCommand.CommandText = "DOCS_ECP_SIGN_DATA_GET_ALL";
-                            da.SelectCommand.Parameters.Clear();
-                            //da.SelectCommand.Parameters.AddWithValue("@pv_id", 1613003);
-                            da.Fill(dt);
-                        }
-                    }
-                }
-                LogHelper.WriteLog($"DOCS_ECP_SIGN_DATA_GET_ALL, rows.count = {dt.Rows.Count}");
-            }
-            catch (Exception ex)
-            {
-                LogHelper.WriteLog($"GetEcpSignData Exception: {ex.Message}");
-                return null;
-            }
+            if (SQLHelper.GetData(ConnectionSting, "DOCS_ECP_SIGN_DATA_GET_ALL", ref dt, null) == false) { return null; }
 
             try
             {
@@ -259,28 +237,7 @@ namespace noPaperAPI_common.Helpers
             DataTable dt = new DataTable("T");
             List<EcpSignData_aptSign> signItems = null;
 
-            try
-            {
-                using (var con = new SqlConnection(ConnectionSting))
-                {
-                    using (var cmd = new SqlCommand("", con))
-                    {
-                        using (var da = new SqlDataAdapter(cmd))
-                        {
-                            da.SelectCommand.CommandType = CommandType.StoredProcedure;
-                            da.SelectCommand.CommandText = "DOCS_ECP_APT_SIGN_DATA_GET_ALL";
-                            da.SelectCommand.Parameters.Clear();
-                            da.Fill(dt);
-                        }
-                    }
-                }
-                LogHelper.WriteLog($"DOCS_ECP_APT_SIGN_DATA_GET_ALL, rows.count = {dt.Rows.Count}");
-            }
-            catch (Exception ex)
-            {
-                LogHelper.WriteLog($"GetEcpSignData Exception: {ex.Message}");
-                return null;
-            }
+            if (SQLHelper.GetData(ConnectionSting, "DOCS_ECP_APT_SIGN_DATA_GET_ALL", ref dt, null) == false) { return null; }
 
             try
             {
@@ -321,71 +278,35 @@ namespace noPaperAPI_common.Helpers
                 dt.Rows.Add(id);
             }
 
-            try {
-                using (var con = new SqlConnection(ConnectionSting))
-                using (var cmd = new SqlCommand("", con))
-                {
-                    con.Open();
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.CommandText = "DOCS_ECP_SENDED_SET";
-                    cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("dt", dt);
-                    cmd.ExecuteNonQuery();
-                    con.Close();
-                }
-                LogHelper.WriteLog($"sendedSet, count = {sendedIds.Count}");
-            }
-            catch (Exception ex) {
-                LogHelper.WriteLog($"sendedSet Exception: {ex.Message}");
-            }
+            Dictionary<string, Object> param = new Dictionary<string, object>();
+
+            param.Add("dt", dt);
+
+            LogHelper.WriteLog($"sendedSet, count = {sendedIds.Count}");
+
+            SQLHelper.Execute(ConnectionSting, "DOCS_ECP_SENDED_SET", param);
         }
 
         public static void signedSet(long signedId)
         {
             LogHelper.WriteLog($"signedSet = {signedId}");
 
-            try
-            {
-                using (var con = new SqlConnection(ConnectionSting))
-                using (var cmd = new SqlCommand("", con))
-                {
-                    con.Open();
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.CommandText = "DOCS_ECP_SIGNED_SET";
-                    cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("pv_id", signedId);
-                    cmd.ExecuteNonQuery();
-                    con.Close();
-                }
-            }
-            catch (Exception ex)
-            {
-                LogHelper.WriteLog($"signedSet Exception: {ex.Message}");
-            }
+            Dictionary<string, Object> param = new Dictionary<string, object>();
+
+            param.Add("pv_id", signedId);
+
+            SQLHelper.Execute(ConnectionSting, "DOCS_ECP_SIGNED_SET", param);
         }
 
         public static void signedAptSet(long signedId)
         {
             LogHelper.WriteLog($"signedAptSet = {signedId}");
 
-            try
-            {
-                using (var con = new SqlConnection(ConnectionSting))
-                using (var cmd = new SqlCommand("", con))
-                {
-                    con.Open();
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.CommandText = "DOCS_ECP_APT_SIGNED_SET";
-                    cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("pv_id", signedId);
-                    cmd.ExecuteNonQuery();
-                    con.Close();
-                }
-            }
-            catch (Exception ex)
-            {
-                LogHelper.WriteLog($"signedAptSet Exception: {ex.Message}");
-            }
+            Dictionary<string, Object> param = new Dictionary<string, object>();
+
+            param.Add("pv_id", signedId);
+
+            SQLHelper.Execute(ConnectionSting, "DOCS_ECP_APT_SIGNED_SET", param);          
         }
     }
 }
