@@ -180,7 +180,7 @@ Namespace Controllers
                                 Throw New Exception()
                             End Try
 
-                            Print.PrintExcel_Invoice(mainPath, printExcel, responseData)
+                            Print.PrintExcel_Invoice(mainPath, printExcel, layoutStamps, responseData)
                             Helpers.LayoutStamps.LayoutStampsExcelBook(savePath, layoutStamps, printExcel, responseData)
                             endFile = $"{savePath}\{printExcel.nameFile} {jsonPV}.pdf"
 

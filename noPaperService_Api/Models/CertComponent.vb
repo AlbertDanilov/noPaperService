@@ -9,5 +9,6 @@
         Public Property subject As String = Nothing
         Public Property fullSubject As String = Nothing
         Public Property serialNumber As String = Nothing
+        Public Property subjectPost As String = Nothing
     End Class
 End Namespace

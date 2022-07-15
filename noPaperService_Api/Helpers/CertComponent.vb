@@ -14,6 +14,7 @@
                 CC.serialNumber = cert.SerialNumber
                 CC.fullSubject = GetFullValue(cert.Subject)
                 CC.fullIssued = GetFullValue(cert.Issuer)
+                CC.subjectPost = GetValue(cert.Subject, "T")
             End If
             Return CC
         End Function

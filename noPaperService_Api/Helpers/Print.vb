@@ -60,7 +60,7 @@ Public Class Print
         Return docFile
     End Function
 
-    Public Shared Sub PrintExcel_Invoice(mainPath As String, printExcel As PrintExcel, responseData As ResponseData)
+    Public Shared Sub PrintExcel_Invoice(mainPath As String, printExcel As PrintExcel, layoutStamps As Models.LayoutStamps, responseData As ResponseData)
         Dim json As String = File.ReadAllText(printExcel.jsonFileNamePath)
         Dim pv As noPaperService_common.Entities.EcpSignData_pv = JsonConvert.DeserializeObject(Of noPaperService_common.Entities.EcpSignData_pv)(json)
 
@@ -332,6 +332,11 @@ Public Class Print
                 ws.Range("OTPUSK_ALLOW").Value = "нач. отдела"
                 ws.Range("OTPUSK_ALLOW_FIO").Value = pv.pv_otv_fio
 
+
+                For Each signComponent As Models.SignComponent In CreateStamps.CreateStamps.GetSigners(layoutStamps.signApt)
+                    ws.Range("RECEIVED_PRODUCE").Value = signComponent.SignCer.subjectPost
+                    ws.Range("RECEIVED_PRODUCE_FIO").Value = signComponent.SignCer.subject
+                Next
             Catch ex As Exception
                 responseData.IsError = True
                 responseData.ErrorText = CSKLAD.noPaperAPIException.PrintExcel
