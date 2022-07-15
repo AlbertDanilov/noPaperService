@@ -332,11 +332,12 @@ Public Class Print
                 ws.Range("OTPUSK_ALLOW").Value = "нач. отдела"
                 ws.Range("OTPUSK_ALLOW_FIO").Value = pv.pv_otv_fio
 
-
-                For Each signComponent As Models.SignComponent In CreateStamps.CreateStamps.GetSigners(layoutStamps.signApt)
-                    ws.Range("RECEIVED_PRODUCE").Value = signComponent.SignCer.subjectPost
-                    ws.Range("RECEIVED_PRODUCE_FIO").Value = signComponent.SignCer.subject
-                Next
+                If layoutStamps.signApt IsNot Nothing Then
+                    For Each signComponent As Models.SignComponent In CreateStamps.CreateStamps.GetSigners(layoutStamps.signApt)
+                        ws.Range("RECEIVED_PRODUCE").Value = signComponent.SignCer.subjectPost
+                        ws.Range("RECEIVED_PRODUCE_FIO").Value = signComponent.SignCer.subject
+                    Next
+                End If
             Catch ex As Exception
                 responseData.IsError = True
                 responseData.ErrorText = CSKLAD.noPaperAPIException.PrintExcel
