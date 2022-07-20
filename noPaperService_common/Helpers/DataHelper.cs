@@ -21,7 +21,10 @@ namespace noPaperAPI_common.Helpers
             DataTable dt = new DataTable("T");
             List<EcpSignData_pv> docItems = null;
 
-            if (SQLHelper.GetData(ConnectionSting, "DOCS_ECP_SIGN_DATA_GET_ALL", ref dt, null) == false) { return null; }
+            if (SQLHelper.GetData(ConnectionSting, "DOCS_ECP_SIGN_DATA_GET_ALL", ref dt, null) == false) 
+            {
+                return new List<EcpSignData_pv>();
+            }
 
             try
             {
@@ -53,6 +56,7 @@ namespace noPaperAPI_common.Helpers
                                pv_work_program_id = d.Field<Int16?>("pv_work_program_id"),
                                pv_work_program_name = d.Field<String>("pv_work_program_name"),
                                pv_otv_fio = d.Field<String>("pv_otv_fio"),
+                               pv_user_position = d.Field<String>("pv_user_position"),
                                pv_sklad_mol = d.Field<String>("pv_sklad_mol"),
                                pv_zay_zname = d.Field<String>("pv_zay_zname"),
                                pv_zay_cdate = d.Field<DateTime?>("pv_zay_cdate"),
@@ -88,6 +92,7 @@ namespace noPaperAPI_common.Helpers
                                pv_work_program_id = ds.Key.pv_work_program_id,
                                pv_work_program_name = ds.Key.pv_work_program_name,
                                pv_otv_fio = ds.Key.pv_otv_fio,
+                               pv_user_position = ds.Key.pv_user_position,
                                pv_sklad_mol = ds.Key.pv_sklad_mol,
                                pv_zay_zname = ds.Key.pv_zay_zname,
                                pv_zay_cdate = ds.Key.pv_zay_cdate,
@@ -224,7 +229,7 @@ namespace noPaperAPI_common.Helpers
             catch (Exception ex)
             {
                 LogHelper.WriteLog($"GroupBy Exception: {ex.Message}");
-                return null;
+                return new List<EcpSignData_pv>();
             }
 
             return docItems;
@@ -237,7 +242,10 @@ namespace noPaperAPI_common.Helpers
             DataTable dt = new DataTable("T");
             List<EcpSignData_aptSign> signItems = null;
 
-            if (SQLHelper.GetData(ConnectionSting, "DOCS_ECP_APT_SIGN_DATA_GET_ALL", ref dt, null) == false) { return null; }
+            if (SQLHelper.GetData(ConnectionSting, "DOCS_ECP_APT_SIGN_DATA_GET_ALL", ref dt, null) == false) 
+            { 
+                return new List<EcpSignData_aptSign>(); 
+            }
 
             try
             {
@@ -260,7 +268,7 @@ namespace noPaperAPI_common.Helpers
             catch (Exception ex)
             {
                 LogHelper.WriteLog($"GroupBy Exception: {ex.Message}");
-                return null;
+                return new List<EcpSignData_aptSign>();
             }
 
             return signItems;

@@ -34,6 +34,7 @@ namespace noPaperService_common.Entities
         public Int32? pv_work_program_id { get; set; }
         public String pv_work_program_name { get; set; }
         public String pv_otv_fio { get; set; }
+        public String pv_user_position { get; set; }
         public String pv_sklad_mol { get; set; }
         public String pv_zay_zname { get; set; }
         public DateTime? pv_zay_cdate { get; set; }
