@@ -329,7 +329,7 @@ Public Class Print
                 'Dim rn As Cell = "DATE1"
                 'End If
 
-                ws.Range("OTPUSK_ALLOW").Value = "нач. отдела"
+                ws.Range("OTPUSK_ALLOW").Value = pv.pv_user_position
                 ws.Range("OTPUSK_ALLOW_FIO").Value = pv.pv_otv_fio
 
                 If layoutStamps.signApt IsNot Nothing Then
