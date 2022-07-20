@@ -250,7 +250,7 @@ Public Class Print
                         'Else
                         If k = pageLenght Then
                             pageLenght += pageLenghtSum
-                            ws.HorizontalPageBreaks.Add(rowIndexPaste - 1) ' разрыв страницы, если превышает определенную длину
+                            ws.HorizontalPageBreaks.Add(rowIndexPaste - 1) ' разрыв страницы, если достиг определенного номера
                         End If
 
                         'If k >= i OrElse k > 1 AndAlso k < 15 Then
@@ -521,6 +521,8 @@ Public Class Print
         End Try
 
         Dim cntRow As Integer = dtApp.Rows.Count
+        Dim pageLenght As Integer = 30
+        Dim pageLenghtSum As Integer = 30
 
         If cntRow > 0 Then
             printExcel.docFileName = $"{printExcel.nameFile} {printExcel.pvId} от {Date.Now:dd.MM.yyyy HH.mm.ss}"
@@ -549,14 +551,31 @@ Public Class Print
                         ws.Range($"BG{rowIndexPaste}").Value = item("zquant").ToString()
 
                         If k < cntRow Then
+                            If k = pageLenght Then
+                                pageLenght += pageLenghtSum
+                                ws.HorizontalPageBreaks.Add(rowIndexPaste + 3 - 1) ' разрыв страницы, если достиг определенного номера
+
+                                If k <> cntRow Then
+                                    ws.Rows.Insert(rowIndexFormat, 1)
+                                    ws.Range($"A{rowIndexFormat}").CopyFrom(ws.Range($"A4:BI4"), PasteSpecial.All)
+                                    rowIndexFormat += 1
+                                    rowIndexPaste += 1
+                                End If
+                            End If
+
                             ws.Rows.Insert(rowIndexFormat, rowIndexSum)
                             ws.Range($"A{rowIndexFormat}").CopyFrom(ws.Range($"A5:BI7"), PasteSpecial.Formats)
                             rowIndexFormat += rowIndexSum
                             rowIndexPaste += rowIndexSum
+
                             k += 1
                         End If
                         'If printExcel.pvId = 1657790 Then ws.Range($"AQ{rowIndexPaste}").Value = item("drod")
                     Next
+
+                    ws.Rows(rowIndexFormat - 1).Delete()
+                    ws.Rows(rowIndexFormat - 1).Delete()
+                    ws.Rows(rowIndexFormat - 1).Delete()
                 Catch ex As Exception
                     responseData.IsError = True
                     responseData.ErrorText = CSKLAD.noPaperAPIException.PrintExcelApp
