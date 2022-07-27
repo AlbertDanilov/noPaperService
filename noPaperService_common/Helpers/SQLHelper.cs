@@ -23,6 +23,7 @@ namespace noPaperService_common.Helpers
                         using (var da = new SqlDataAdapter(cmd))
                         {
                             da.SelectCommand.CommandType = CommandType.StoredProcedure;
+                            da.SelectCommand.CommandTimeout = 300000;
                             da.SelectCommand.CommandText = spName;
                             da.SelectCommand.Parameters.Clear();
 
