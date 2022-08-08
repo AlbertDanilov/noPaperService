@@ -334,7 +334,11 @@ Public Class Print
 
                 If layoutStamps.signApt IsNot Nothing Then
                     For Each signComponent As Models.SignComponent In CreateStamps.CreateStamps.GetSigners(layoutStamps.signApt)
-                        ws.Range("RECEIVED_PRODUCE").Value = signComponent.SignCer.subjectPost
+                        If Not signComponent.SignCer.subjectPost.Contains("№") Then
+                            ws.Range("RECEIVED_PRODUCE").Value = signComponent.SignCer.subjectPost & " " & signComponent.SignCer.subjectOrg.Substring(signComponent.SignCer.subjectOrg.IndexOf("№"))
+                        Else
+                            ws.Range("RECEIVED_PRODUCE").Value = signComponent.SignCer.subjectPost
+                        End If
                         ws.Range("RECEIVED_PRODUCE_FIO").Value = signComponent.SignCer.subject
                     Next
                 End If
@@ -352,7 +356,7 @@ Public Class Print
         End Using
     End Sub
 
-    Public Shared Sub PrintExcel_PriceApprovalProtocol(mainPath As String, printExcel As PrintExcel, responseData As ResponseData)
+    Public Shared Sub PrintExcel_PriceApprovalProtocol(mainPath As String, printExcel As PrintExcel, layoutStamps As Models.LayoutStamps, responseData As ResponseData)
         Dim json As String = File.ReadAllText(printExcel.jsonFileNamePath)
         Dim pv As noPaperService_common.Entities.EcpSignData_pv = JsonConvert.DeserializeObject(Of noPaperService_common.Entities.EcpSignData_pv)(json)
 
@@ -483,6 +487,18 @@ Public Class Print
                         list += 1
                     Next
 
+                    For Each signComponent As Models.SignComponent In CreateStamps.CreateStamps.GetSigners(layoutStamps.sign)
+                        ws.Range("SENT_PRODUCE_FIO").Value = signComponent.SignCer.subject
+                    Next
+
+                    If layoutStamps.signApt IsNot Nothing Then
+                        For Each signComponent As Models.SignComponent In CreateStamps.CreateStamps.GetSigners(layoutStamps.signApt)
+                            ws.Range("RECEIVED_PRODUCE_FIO").Value = signComponent.SignCer.subject
+                        Next
+                    End If
+
+                    ws.Range("DATE1").Value = Now.ToString("dd.MM.yyyy")
+                    ws.Range("DATE2").Value = Now.ToString("dd.MM.yyyy")
                     'Dim rn As Cell = "DATE1"
                 Catch ex As Exception
                     responseData.IsError = True

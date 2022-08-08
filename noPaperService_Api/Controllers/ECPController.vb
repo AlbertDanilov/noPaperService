@@ -333,7 +333,7 @@ Namespace Controllers
                                 Throw New Exception()
                             End Try
 
-                            Print.PrintExcel_PriceApprovalProtocol(mainPath, printExcel, responseData)
+                            Print.PrintExcel_PriceApprovalProtocol(mainPath, printExcel, layoutStamps, responseData)
                             Helpers.LayoutStamps.LayoutStampsExcel(savePath, layoutStamps, printExcel, responseData)
 
                             endFile = $"{savePath}\{printExcel.nameFile} {jsonPV}.pdf"
