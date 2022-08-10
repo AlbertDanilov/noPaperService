@@ -140,14 +140,27 @@ Namespace Helpers
 
             'Список для штампов
             Dim stampList As List(Of Bitmap)
-            stampList = CreateStamps.CreateStamps.GetStamps(layoutStamps.sign, layoutStamps.signIden, Nothing, 1, printExcel.pvOtrDate)
-
             Dim _stampList As List(Of Bitmap)
 
-            If layoutStamps.signApt IsNot Nothing Then
-                CreateStamps.CreateStamps.GetStamps(layoutStamps.signApt, layoutStamps.signIden, stampList, 2)
-                _stampList = CreateStamps.CreateStamps._GetStamps(printExcel)
-            End If
+            Try
+                stampList = CreateStamps.CreateStamps.GetStamps(layoutStamps.sign, layoutStamps.signIden, Nothing, 1, printExcel.pvOtrDate)
+
+                If layoutStamps.signApt IsNot Nothing Then
+                    CreateStamps.CreateStamps.GetStamps(layoutStamps.signApt, layoutStamps.signIden, stampList, 2)
+                    _stampList = CreateStamps.CreateStamps._GetStamps(printExcel)
+                End If
+            Catch ex As Exception
+                If File.Exists(printExcel.docFileNamePathExtension) Then
+                    File.Delete(printExcel.docFileNamePathExtension)
+                End If
+                If File.Exists(layoutStamps.pdfFileNamePathExtension) Then
+                    'pdfFile = File.ReadAllBytes(pdfFileNamePathExtension)
+                    File.Delete(layoutStamps.pdfFileNamePathExtension)
+                End If
+                responseData.IsError = True
+                responseData.ErrorText = CSKLAD.noPaperAPIException.LayoutStamp
+                Throw New Exception()
+            End Try
 
             Using workbook As New Workbook()
                 Using inputPdfStream As New MemoryStream
@@ -305,11 +318,25 @@ Namespace Helpers
 
             'Список для штампов
             Dim stampList As List(Of Bitmap)
-            stampList = CreateStamps.CreateStamps.GetStamps(layoutStamps.sign, layoutStamps.signIden)
 
-            If layoutStamps.signApt IsNot Nothing Then
-                CreateStamps.CreateStamps.GetStamps(layoutStamps.signApt, layoutStamps.signIden, stampList, 2)
-            End If
+            Try
+                stampList = CreateStamps.CreateStamps.GetStamps(layoutStamps.sign, layoutStamps.signIden)
+
+                If layoutStamps.signApt IsNot Nothing Then
+                    CreateStamps.CreateStamps.GetStamps(layoutStamps.signApt, layoutStamps.signIden, stampList, 2)
+                End If
+            Catch ex As Exception
+                If File.Exists(printExcel.docFileNamePathExtension) Then
+                    File.Delete(printExcel.docFileNamePathExtension)
+                End If
+                If File.Exists(layoutStamps.pdfFileNamePathExtension) Then
+                    'pdfFile = File.ReadAllBytes(pdfFileNamePathExtension)
+                    File.Delete(layoutStamps.pdfFileNamePathExtension)
+                End If
+                responseData.IsError = True
+                responseData.ErrorText = CSKLAD.noPaperAPIException.LayoutStamp
+                Throw New Exception()
+            End Try
 
             Using workbook As New Workbook()
                 Using inputPdfStream As New MemoryStream
