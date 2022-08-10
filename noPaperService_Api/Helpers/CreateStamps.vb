@@ -29,12 +29,12 @@ Namespace CreateStamps
         '    Return signComponentList
         'End Function
 
-        Public Shared Function GetStamps(sign As Byte(), signIden As String, Optional ByRef stampList As List(Of Bitmap) = Nothing, Optional ByVal i As Integer = 1) As List(Of Bitmap)
+        Public Shared Function GetStamps(sign As Byte(), signIden As String, Optional ByRef stampList As List(Of Bitmap) = Nothing, Optional ByVal i As Integer = 1, Optional pvOtrDate As String = Nothing) As List(Of Bitmap)
             If stampList Is Nothing Then
                 stampList = New List(Of Bitmap)
             End If
             For Each signComponent As SignComponent In GetSigners(sign)
-                stampList.Add(GetStamp(signComponent, signIden & i.ToString))
+                stampList.Add(GetStamp(signComponent, signIden & i.ToString, pvOtrDate))
                 i += 1
             Next
             Return stampList
@@ -70,7 +70,7 @@ Namespace CreateStamps
         End Function
 
         'Получение штампа
-        Public Shared Function GetStamp(ByVal signComponent As Models.SignComponent, ByVal qrText As String) As Image
+        Public Shared Function GetStamp(ByVal signComponent As Models.SignComponent, ByVal qrText As String, pvOtrDate As String) As Image
             'Кисть
             Dim myBrush As System.Drawing.Brush = New SolidBrush(Drawing.Color.FromArgb(43, 87, 154))
             'Высота холста
@@ -106,7 +106,8 @@ Namespace CreateStamps
                 g.DrawString(signComponent.SignCer.valid, New Font("Arial", 80), myBrush, New Rectangle(1000, myBMPHeight - 400, 2450, 150))
                 'Рисуем дату подписи
                 g.DrawString("Дата подписи:", New Font("Arial", 80, FontStyle.Bold), myBrush, New Rectangle(100, myBMPHeight - 250, 950, 150))
-                g.DrawString(signComponent.SignDateTimeUtc.ToLocalTime.ToString("yyyy.MM.dd HH:mm"), New Font("Arial", 80), myBrush, New Rectangle(1000, myBMPHeight - 250, 2450, 150))
+                g.DrawString(If(pvOtrDate Is Nothing, signComponent.SignDateTimeUtc.ToLocalTime.ToString("yyyy.MM.dd HH:mm"), pvOtrDate), New Font("Arial", 80), myBrush, New Rectangle(1000, myBMPHeight - 250, 2450, 150))
+                'g.DrawString(signComponent.SignDateTimeUtc.ToLocalTime.ToString("yyyy.MM.dd HH:mm"), New Font("Arial", 80), myBrush, New Rectangle(1000, myBMPHeight - 250, 2450, 150))
             End Using
             'Возвращаем холст
             Return myBMP

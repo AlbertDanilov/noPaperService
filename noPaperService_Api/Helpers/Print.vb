@@ -162,6 +162,7 @@ Public Class Print
 
                 printExcel.pvAgentPrintname = pv.pv_agent_printname
                 printExcel.nomSklad = $"{pv.pv_nom}/ {pv.pv_sklad_iname} от {pv.pv_otr_date?.ToString("dd.MM.yyyy")}"
+                printExcel.pvOtrDate = pv.pv_otr_date?.ToLocalTime.ToString("yyyy.MM.dd HH:mm")
 
                 ws.Range("I1").Value = pv.pv_agent_printname
 

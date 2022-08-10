@@ -9,5 +9,6 @@
         Public Property pvAgentPrintname As String = String.Empty
         Public Property pvId As Long
         Public Property nomSklad As String = String.Empty
+        Public Property pvOtrDate As String
     End Class
 End Namespace

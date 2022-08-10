@@ -140,7 +140,7 @@ Namespace Helpers
 
             'Список для штампов
             Dim stampList As List(Of Bitmap)
-            stampList = CreateStamps.CreateStamps.GetStamps(layoutStamps.sign, layoutStamps.signIden)
+            stampList = CreateStamps.CreateStamps.GetStamps(layoutStamps.sign, layoutStamps.signIden, Nothing, 1, printExcel.pvOtrDate)
 
             Dim _stampList As List(Of Bitmap)
 
