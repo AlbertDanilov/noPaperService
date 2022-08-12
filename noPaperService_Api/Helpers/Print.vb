@@ -162,8 +162,7 @@ Public Class Print
 
                 printExcel.pvAgentPrintname = pv.pv_agent_printname
                 printExcel.nomSklad = $"{pv.pv_nom}/ {pv.pv_sklad_iname} от {pv.pv_otr_date?.ToString("dd.MM.yyyy")}"
-                printExcel.pvOtrDate = pv.pv_otr_date?.ToLocalTime.ToString("yyyy.MM.dd HH:mm")
-
+                printExcel.pvOtrDate = pv.pv_otr_date?.ToString("yyyy.MM.dd HH:mm")
                 ws.Range("I1").Value = pv.pv_agent_printname
 
                 If pv.pv_is_mark.Value > 0I Then
@@ -401,9 +400,9 @@ Public Class Print
 
                 Try
                     Dim k = 1
-                    Dim listRng As New List(Of String)
-
-                    listRng.Add("CL28")
+                    Dim listRng As New List(Of String) From {
+                        "CL28"
+                    }
 
                     ws.Range("A13").Value = $"Протокол к накладной № {pv.pv_num} от {pv.pv_otg_date?.ToString("dd.MM.yyyy")}"
                     ws.Range("G22").Value = pv.pv_agent_agnabbr
@@ -495,11 +494,11 @@ Public Class Print
                     If layoutStamps.signApt IsNot Nothing Then
                         For Each signComponent As Models.SignComponent In CreateStamps.CreateStamps.GetSigners(layoutStamps.signApt)
                             ws.Range("RECEIVED_PRODUCE_FIO").Value = signComponent.SignCer.subject
+                            ws.Range("DATE2").Value = signComponent.SignDateTimeUtc.ToString("dd.MM.yyyy")
                         Next
                     End If
 
-                    ws.Range("DATE1").Value = Now.ToString("dd.MM.yyyy")
-                    ws.Range("DATE2").Value = Now.ToString("dd.MM.yyyy")
+                    ws.Range("DATE1").Value = pv.pv_otr_date?.ToString("dd.MM.yyyy")
                     'Dim rn As Cell = "DATE1"
                 Catch ex As Exception
                     responseData.IsError = True
