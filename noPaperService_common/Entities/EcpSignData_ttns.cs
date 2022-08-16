@@ -40,6 +40,7 @@ namespace noPaperService_common.Entities
         public Int32? docs_p_jnvls { get; set; }
         public String docs_p_mnn { get; set; }
         public String docs_p_tn { get; set; }
+        public String docs_p_fv_doz { get; set; }
         public String docs_p_proizv { get; set; }
         public Decimal? docs_p_prcena_proizv { get; set; }
         public Decimal? docs_prcena_bnds { get; set; }

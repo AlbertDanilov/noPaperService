@@ -163,6 +163,7 @@ Public Class Print
                 printExcel.pvAgentPrintname = pv.pv_agent_printname
                 printExcel.nomSklad = $"{pv.pv_nom}/ {pv.pv_sklad_iname} от {pv.pv_otr_date?.ToString("dd.MM.yyyy")}"
                 printExcel.pvOtrDate = pv.pv_otr_date?.ToString("yyyy.MM.dd HH:mm")
+                printExcel.pvAptAcceptDate = pv.pv_apt_accepted_date?.ToString("yyyy.MM.dd HH:mm")
                 ws.Range("I1").Value = pv.pv_agent_printname
 
                 If pv.pv_is_mark.Value > 0I Then
@@ -404,33 +405,65 @@ Public Class Print
                         "CL28"
                     }
 
-                    ws.Range("A13").Value = $"Протокол к накладной № {pv.pv_num} от {pv.pv_otg_date?.ToString("dd.MM.yyyy")}"
+                    ws.Range("A13").Value = $"Протокол к накладной № {pv.pv_num} от {pv.pv_otr_date?.ToString("dd.MM.yyyy")}"
                     ws.Range("G22").Value = pv.pv_agent_agnabbr
                     ws.Range("A28").Value = $"Дата отгрузки: {pv.pv_otg_date?.ToString("dd.MM.yyyy")}"
+                    printExcel.pvOtrDate = pv.pv_otr_date?.ToString("yyyy.MM.dd HH:mm")
+                    printExcel.pvAptAcceptDate = pv.pv_apt_accepted_date?.ToString("yyyy.MM.dd HH:mm")
 
                     'printExcel.pvAgentPrintname = pv.pv_agent_printname
                     Dim notJNVLS As Boolean = False
                     For Each pvs As noPaperService_common.Entities.EcpSignData_pvs In pv.pvsList
                         If pvs.ttnsInfo.docs_p_jnvls = 1 Then
                             ws.Range($"A{rowIndexPaste}").Value = pvs.ttnsInfo.docs_p_mnn '1
-                            ws.Range($"G{rowIndexPaste}").Value = pvs.ttnsInfo.docs_p_tn '2
+                            ws.Range($"G{rowIndexPaste}").Value = $"{pvs.ttnsInfo.docs_p_tn} {pvs.ttnsInfo.docs_p_fv_doz}" '2
                             ws.Range($"S{rowIndexPaste}").Value = pvs.ttnsInfo.ttns_seria '3
                             ws.Range($"X{rowIndexPaste}").Value = pvs.ttnsInfo.docs_p_proizv '4
                             ws.Range($"AF{rowIndexPaste}").Value = pvs.ttnsInfo.docs_p_prcena_proizv.Value '5
                             ws.Range($"AJ{rowIndexPaste}").Value = pvs.ttnsInfo.docs_prcena_bnds.Value '6
                             ws.Range($"AN{rowIndexPaste}").Value = pvs.ttnsInfo.docs_prcena_nds.Value '7
-
                             ws.Range($"AW{rowIndexPaste}").Value = pvs.pvs_pcena_bnds.Value '10
-                            ws.Range($"AN{rowIndexPaste}").Value = pvs.pvs_pcena_nds.Value '11
-                            ws.Range($"BA{rowIndexPaste}").Value = pvs.ttnsInfo.nac_prc_val_p.Value '12
-                            ws.Range($"BE{rowIndexPaste}").Value = pvs.ttnsInfo.nac_sum_val_p2.Value '13
-                            ws.Range($"BG{rowIndexPaste}").Value = pvs.ttnsInfo.docs_ocena_bnds.Value '15
+                            ws.Range($"BA{rowIndexPaste}").Value = pvs.pvs_pcena_nds.Value '11
+                            If pvs.ttnsInfo.nac_prc_val_p.Value < 0.0 Then
+                                ws.Range($"BE{rowIndexPaste}").Value = "-"
+                            Else
+                                ws.Range($"BE{rowIndexPaste}").Value = Decimal.Round(pvs.ttnsInfo.nac_prc_val_p.Value, 2, MidpointRounding.AwayFromZero) '12
+                            End If
+                            If pvs.ttnsInfo.nac_sum_val_p.Value < 0.0 Then
+                                ws.Range($"BG{rowIndexPaste}").Value = "-"
+                            Else
+                                ws.Range($"BG{rowIndexPaste}").Value = Decimal.Round(pvs.ttnsInfo.nac_sum_val_p.Value, 2, MidpointRounding.AwayFromZero) '13
+                            End If
+                            ws.Range($"BM{rowIndexPaste}").Value = pvs.ttnsInfo.docs_ocena_bnds.Value '15
                             ws.Range($"BQ{rowIndexPaste}").Value = pvs.ttnsInfo.ttns_ocena_nds.Value '16
-                            ws.Range($"BM{rowIndexPaste}").Value = pvs.ttnsInfo.nac_prc_val.Value '17
-                            ws.Range($"BW{rowIndexPaste}").Value = pvs.ttnsInfo.nac_sum_val.Value '18
-                            ws.Range($"CA{rowIndexPaste}").Value = pvs.ttnsInfo.nac_prc_rozn_val.Value '19
-                            ws.Range($"CC{rowIndexPaste}").Value = pvs.ttnsInfo.nac_sum_rozn_val.Value '20
-                            ws.Range($"CI{rowIndexPaste}").Value = pvs.ttnsInfo.rcena_bnds.Value '22
+                            If pvs.ttnsInfo.nac_prc_val.Value < 0.0 Then
+                                ws.Range($"BU{rowIndexPaste}").Value = "-"
+                            Else
+                                ws.Range($"BU{rowIndexPaste}").Value = Decimal.Round(pvs.ttnsInfo.nac_prc_val.Value, 2, MidpointRounding.AwayFromZero) '17
+                            End If
+                            If pvs.ttnsInfo.nac_sum_val.Value < 0.0 Then
+                                ws.Range($"BW{rowIndexPaste}").Value = "-"
+                            Else
+                                ws.Range($"BW{rowIndexPaste}").Value = Decimal.Round(pvs.ttnsInfo.nac_sum_val.Value, 2, MidpointRounding.AwayFromZero) '18
+                            End If
+
+                            If pv.pv_work_program_id = CSKLAD.c_WORK_PROG_ROZN Then
+                                ws.Range($"CA{rowIndexPaste}").Value = "-" '19
+                                ws.Range($"CC{rowIndexPaste}").Value = "-" '20
+                                ws.Range($"CI{rowIndexPaste}").Value = "-" '22
+                            Else
+                                If pvs.ttnsInfo.nac_prc_rozn_val.Value < 0.0 Then
+                                    ws.Range($"CA{rowIndexPaste}").Value = "-"
+                                Else
+                                    ws.Range($"CA{rowIndexPaste}").Value = Decimal.Round(pvs.ttnsInfo.nac_prc_rozn_val.Value, 2, MidpointRounding.AwayFromZero) '19
+                                End If
+                                If pvs.ttnsInfo.nac_sum_rozn_val.Value < 0.0 Then
+                                    ws.Range($"CC{rowIndexPaste}").Value = "-"
+                                Else
+                                    ws.Range($"CC{rowIndexPaste}").Value = Decimal.Round(pvs.ttnsInfo.nac_sum_rozn_val.Value, 2, MidpointRounding.AwayFromZero) '20
+                                End If
+                                ws.Range($"CI{rowIndexPaste}").Value = pvs.ttnsInfo.rcena_bnds.Value '22
+                            End If
 
                             If k < pv.pvsList.Count Then
                                 Dim temprowIndexPaste = rowIndexPaste

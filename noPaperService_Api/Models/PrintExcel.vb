@@ -10,5 +10,6 @@
         Public Property pvId As Long
         Public Property nomSklad As String = String.Empty
         Public Property pvOtrDate As String
+        Public Property pvAptAcceptDate As String
     End Class
 End Namespace

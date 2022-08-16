@@ -146,7 +146,7 @@ Namespace Helpers
                 stampList = CreateStamps.CreateStamps.GetStamps(layoutStamps.sign, layoutStamps.signIden, Nothing, 1, printExcel.pvOtrDate)
 
                 If layoutStamps.signApt IsNot Nothing Then
-                    CreateStamps.CreateStamps.GetStamps(layoutStamps.signApt, layoutStamps.signIden, stampList, 2)
+                    CreateStamps.CreateStamps.GetStamps(layoutStamps.signApt, layoutStamps.signIden, stampList, 2, Nothing, printExcel.pvAptAcceptDate)
                     _stampList = CreateStamps.CreateStamps._GetStamps(printExcel)
                 End If
             Catch ex As Exception

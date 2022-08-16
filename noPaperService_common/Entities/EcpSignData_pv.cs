@@ -15,6 +15,7 @@ namespace noPaperService_common.Entities
         public DateTime? pv_create_date { get; set; }
         public DateTime? pv_date { get; set; }
         public DateTime? pv_otr_date { get; set; }
+        public DateTime? pv_apt_accepted_date { get; set; }
         public Int32? pv_agent_id { get; set; }
         public String pv_agent_agnabbr { get; set; }
         public String pv_agent_printname { get; set; }
