@@ -527,11 +527,11 @@ Public Class Print
                     If layoutStamps.signApt IsNot Nothing Then
                         For Each signComponent As Models.SignComponent In CreateStamps.CreateStamps.GetSigners(layoutStamps.signApt)
                             ws.Range("RECEIVED_PRODUCE_FIO").Value = signComponent.SignCer.subject
-                            ws.Range("DATE2").Value = signComponent.SignDateTimeUtc.ToString("dd.MM.yyyy")
                         Next
                     End If
 
                     ws.Range("DATE1").Value = pv.pv_otr_date?.ToString("dd.MM.yyyy")
+                    ws.Range("DATE2").Value = pv.pv_apt_accepted_date?.ToString("dd.MM.yyyy")
                     'Dim rn As Cell = "DATE1"
                 Catch ex As Exception
                     responseData.IsError = True
