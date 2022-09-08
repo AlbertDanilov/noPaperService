@@ -21,7 +21,7 @@ namespace noPaperAPI_common.Helpers
             DataTable dt = new DataTable("T");
             List<EcpSignData_pv> docItems = null;
 
-            if (SQLHelper.GetData(ConnectionSting, "DOCS_ECP_SIGN_DATA_GET_ALL", ref dt, null) == false) 
+            if (SQLHelper.GetData(ConnectionSting, "DOCS_ECP_SIGN_DATA_GET_ALL", ref dt, null) == false)
             {
                 return new List<EcpSignData_pv>();
             }
@@ -153,6 +153,7 @@ namespace noPaperAPI_common.Helpers
                                    docs_p_proizv = dss.Field<String>("docs_p_proizv"),
                                    docs_p_prcena_proizv = dss.Field<Decimal?>("docs_p_prcena_proizv"),
                                    docs_prcena_bnds = dss.Field<Decimal?>("docs_prcena_bnds"),
+                                   docs_dt_prcena_bnds = dss.Field<DateTime?>("docs_dt_prcena_bnds"),
                                    docs_prcena_nds = dss.Field<Decimal?>("docs_prcena_nds"),
                                    docs_ocena_bnds = dss.Field<Decimal?>("docs_ocena_bnds"),
                                    nac_sum_val = dss.Field<Decimal?>("nac_sum_val"),
@@ -215,6 +216,7 @@ namespace noPaperAPI_common.Helpers
                                        docs_p_proizv = dss.Key.docs_p_proizv,
                                        docs_p_prcena_proizv = dss.Key.docs_p_prcena_proizv,
                                        docs_prcena_bnds = dss.Key.docs_prcena_bnds,
+                                       docs_dt_prcena_bnds = dss.Key.docs_dt_prcena_bnds,
                                        docs_prcena_nds = dss.Key.docs_prcena_nds,
                                        docs_ocena_bnds = dss.Key.docs_ocena_bnds,
                                        nac_sum_val = dss.Key.nac_sum_val,

@@ -44,6 +44,7 @@ namespace noPaperService_common.Entities
         public String docs_p_proizv { get; set; }
         public Decimal? docs_p_prcena_proizv { get; set; }
         public Decimal? docs_prcena_bnds { get; set; }
+        public DateTime? docs_dt_prcena_bnds { get; set; }
         public Decimal? docs_prcena_nds { get; set; }
         public Decimal? docs_ocena_bnds { get; set; }
         public Decimal? nac_sum_val { get; set; }
