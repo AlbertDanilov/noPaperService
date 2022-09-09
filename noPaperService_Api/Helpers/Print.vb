@@ -42,7 +42,7 @@ Public Class Print
             nameBookmark = document.Bookmarks("ttns_nommodif")
             document.Replace(nameBookmark.Range, If(i.ttnsInfo.ttns_p_name_s, i.ttnsInfo.ttns_nommodif))
             nameBookmark = document.Bookmarks("ttns_prcena_bnds")
-            document.Replace(nameBookmark.Range, i.ttnsInfo.ttns_prcena_bnds)
+            document.Replace(nameBookmark.Range, i.ttnsInfo.docs_prcena_bnds)
             nameBookmark = document.Bookmarks("ttns_ocena_nds")
             document.Replace(nameBookmark.Range, i.ttnsInfo.ttns_ocena_nds)
             nameBookmark = document.Bookmarks("ttns_rcena_nds")
@@ -422,6 +422,7 @@ Public Class Print
                             ws.Range($"AF{rowIndexPaste}").Value = pvs.ttnsInfo.docs_p_prcena_proizv.Value '5
                             ws.Range($"AJ{rowIndexPaste}").Value = pvs.ttnsInfo.docs_prcena_bnds.Value '6
                             ws.Range($"AN{rowIndexPaste}").Value = pvs.ttnsInfo.docs_prcena_nds.Value '7
+                            ws.Range($"AR{rowIndexPaste}").Value = pvs.ttnsInfo.docs_dt_prcena_bnds?.ToString("dd.MM.yyyy") '8
                             ws.Range($"AW{rowIndexPaste}").Value = pvs.pvs_pcena_bnds.Value '10
                             ws.Range($"BA{rowIndexPaste}").Value = pvs.pvs_pcena_nds.Value '11
                             If pvs.ttnsInfo.nac_prc_val_p.Value < 0.0 Then
