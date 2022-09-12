@@ -8,35 +8,19 @@ Imports noPaperService_Api.Models
 
 Namespace CreateStamps
     Public Class CreateStamps
-        'Public Shared Function GetSigners(ByVal sign As Byte()) As List(Of SignComponent)
-        '    ' Объект, в котором будут происходить декодирование и проверка.
-        '    Dim signedCms As SignedCms = New SignedCms()
-        '    ' Декодируем сообщение.
-        '    signedCms.Decode(sign)
-        '    Dim signComponentList As New List(Of SignComponent)
-        '    For Each signer As SignerInfo In signedCms.SignerInfos
-        '        Dim signingTime As Pkcs9SigningTime = Nothing
-        '        For Each s In signer.SignedAttributes
-        '            If TypeOf s.Values(0) Is Pkcs9SigningTime Then
-        '                signingTime = s.Values(0)
-        '                Exit For
-        '            End If
-        '        Next
-        '        signComponentList.Add(New SignComponent() With {.SignDateTimeUtc = signingTime.SigningTime, .SignCer = New CertComponent(signer.Certificate)})
-        '    Next
 
-        '    signComponentList.Sort(Function(v1, v2) v1.SignDateTimeUtc.CompareTo(v2.SignDateTimeUtc))
-        '    Return signComponentList
-        'End Function
-
-        Public Shared Function GetStamps(sign As Byte(), signIden As String, Optional ByRef stampList As List(Of Bitmap) = Nothing, Optional ByVal i As Integer = 1, Optional pvOtrDate As String = Nothing, Optional pvAptAcceptDate As String = Nothing) As List(Of Bitmap)
+        Public Shared Function GetStamps(sign As Byte(), signIden As String, Optional ByRef stampList As List(Of Bitmap) = Nothing, Optional i As Integer = 1, Optional pvOtrDate As String = Nothing, Optional pvAptAcceptDate As String = Nothing, Optional signComponentApt As SignComponent = Nothing) As List(Of Bitmap)
             If stampList Is Nothing Then
                 stampList = New List(Of Bitmap)
             End If
-            For Each signComponent As SignComponent In GetSigners(sign)
-                stampList.Add(GetStamp(signComponent, signIden & i.ToString, pvOtrDate, pvAptAcceptDate))
-                i += 1
-            Next
+            If signComponentApt Is Nothing Then
+                signComponentApt = GetSigners(sign)
+            End If
+
+            'Dim signComponent As SignComponent = GetSigners(sign)
+            'For Each signComponent As SignComponent In GetSigners(sign)
+            stampList.Add(GetStamp(signComponentApt, signIden & i.ToString, pvOtrDate, pvAptAcceptDate))
+            'Next
             Return stampList
         End Function
 
@@ -48,7 +32,29 @@ Namespace CreateStamps
             Return stampList
         End Function
 
-        Public Shared Function GetSigners(ByVal sign As Byte()) As List(Of SignComponent)
+        Public Shared Function GetSigners(ByVal sign As Byte()) As SignComponent
+            ' Объект, в котором будут происходить декодирование и проверка.
+            Dim signedCms As New SignedCms()
+            ' Декодируем сообщение.
+            signedCms.Decode(sign)
+
+            Dim signComponent As New SignComponent
+
+            For Each signer As SignerInfo In signedCms.SignerInfos
+                Dim signingTime As Pkcs9SigningTime = Nothing
+                For Each s In signer.SignedAttributes
+                    If TypeOf s.Values(0) Is Pkcs9SigningTime Then
+                        signingTime = s.Values(0)
+                        Exit For
+                    End If
+                Next
+                signComponent = Helpers.SignComponent.[New](signingTime.SigningTime, Helpers.CertComponent.[New](signer.Certificate))
+            Next
+
+            Return signComponent
+        End Function
+
+        Public Shared Function GetSignersList(ByVal sign As Byte()) As List(Of SignComponent)
             ' Объект, в котором будут происходить декодирование и проверка.
             Dim signedCms As SignedCms = New SignedCms()
             ' Декодируем сообщение.
@@ -139,7 +145,7 @@ Namespace CreateStamps
                 Dim emSize As Integer = 90
                 Dim str As String = "ШТАМП ПРИЕМКИ"
                 Dim font = New Font("Arial", emSize, FontStyle.Bold)
-                Dim newX As Decimal = 150.0
+                Dim newX As Decimal = 100.0
                 Dim newY As Decimal = 100.0
                 Dim newWidth As Decimal = 3300.0
                 Dim sizeF As SizeF = g.MeasureString(str, font)
@@ -161,7 +167,7 @@ Namespace CreateStamps
                 font = New Font("Arial", emSize - 10, FontStyle.Underline)
                 newY += sizeF.Height
                 sizeF = g.MeasureString(str, font)
-                Dim heightLev As Double = Math.Ceiling(sizeF.Width / newWidth)
+                Dim heightLev As Double = Math.Ceiling((sizeF.Width + 500) / newWidth)
                 sizeF.Height *= heightLev
                 g.DrawString(str, font, myBrush, New Rectangle(newX, newY, newWidth, sizeF.Height), sf)
 

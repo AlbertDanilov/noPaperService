@@ -4,8 +4,8 @@ Imports System.Net.Http
 Imports System.Net.Http.Headers
 Imports System.Web.Http
 Imports DevExpress.Pdf
-Imports noPaperService_Api.Models
 Imports noPaperService_Api.Helpers
+Imports noPaperService_Api.Models
 Imports noPaperService_ecpWorker
 
 Namespace Controllers
@@ -81,10 +81,10 @@ Namespace Controllers
                 '    headerText = "ПОДЛИННОСТЬ ЭЛЕКТРОННОЙ ЦИФРОВОЙ ПОДПИСИ НЕ ПОДТВЕРЖДЕНА"
                 '    headerColor = "red"
                 'End If
+                Dim signComponent As Models.SignComponent = CreateStamps.CreateStamps.GetSigners(sign)
+                'For Each signComponent As Models.SignComponent In CreateStamps.CreateStamps.GetSigners(sign)
 
-                For Each signComponent As Models.SignComponent In CreateStamps.CreateStamps.GetSigners(sign)
-
-                    response.Content = New StringContent("<html>
+                response.Content = New StringContent("<html>
                                                           <head>
                                                            <title>Проверка выполнена</title>
                                                           </head>
@@ -99,9 +99,9 @@ Namespace Controllers
                                                         <p><b><big>Дата подписи: </big></b>" & signComponent.SignDateTimeUtc.ToLocalTime.ToString("yyyy.MM.dd HH:mm") & "</p>
                                                          </body>
                                                       </html>", Encoding.UTF8)
-                    response.Content.Headers.ContentType = New MediaTypeHeaderValue("text/html")
-                    response.Content.Headers.ContentType.CharSet = Encoding.UTF8.HeaderName
-                Next
+                response.Content.Headers.ContentType = New MediaTypeHeaderValue("text/html")
+                response.Content.Headers.ContentType.CharSet = Encoding.UTF8.HeaderName
+                'Next
             End If
             Return response
         End Function
@@ -152,6 +152,7 @@ Namespace Controllers
                 Dim invoice As New Invoice
                 Dim printExcel As New PrintExcel
                 Dim layoutStamps As New Models.LayoutStamps
+
                 Dim appPDF As String = String.Empty
                 Dim i = 0
 
@@ -159,15 +160,17 @@ Namespace Controllers
                     For Each pv_id As Integer In listPV
                         Try
                             Dim signedFileByte As Byte()
+                            Dim signComponentApt As New Models.SignComponent
                             printExcel.nameFile = "Накладная"
                             printExcel.docTemplateFileNamePath = $"{mainPath}\{printExcel.nameFile}.xlsx"
 
                             Try
                                 printExcel.jsonFileNamePath = $"{mainPath}\JSON\{pv_id}.json"
                                 layoutStamps.sign = File.ReadAllBytes($"{mainPath}\P7S\{pv_id}.p7s")
-
+                                layoutStamps.signApt = Nothing
                                 If File.Exists($"{mainPath}\P7S_APT\{pv_id}.p7s") Then
                                     layoutStamps.signApt = File.ReadAllBytes($"{mainPath}\P7S_APT\{pv_id}.p7s")
+                                    signComponentApt = CreateStamps.CreateStamps.GetSigners(layoutStamps.signApt)
                                 End If
 
                                 absoluteUrl = HttpContext.Current.Request.Url.Authority
@@ -180,8 +183,8 @@ Namespace Controllers
                                 Throw New Exception()
                             End Try
 
-                            Print.PrintExcel_Invoice(mainPath, printExcel, layoutStamps, responseData)
-                            Helpers.LayoutStamps.LayoutStampsExcelBook(savePath, layoutStamps, printExcel, responseData)
+                            Print.PrintExcel_Invoice(mainPath, printExcel, layoutStamps, responseData, signComponentApt)
+                            Helpers.LayoutStamps.LayoutStampsExcelBook(savePath, layoutStamps, printExcel, responseData, signComponentApt)
                             endFile = $"{savePath}\{printExcel.nameFile} {jsonPV}.pdf"
 
                             printExcel.nameFile = "Приложение"
@@ -319,6 +322,7 @@ Namespace Controllers
                                 printExcel.jsonFileNamePath = $"{mainPath}\JSON\{pv_id}.json"
                                 layoutStamps.sign = File.ReadAllBytes($"{mainPath}\P7S\{pv_id}.p7s")
 
+                                layoutStamps.signApt = Nothing
                                 If File.Exists($"{mainPath}\P7S_APT\{pv_id}.p7s") Then
                                     layoutStamps.signApt = File.ReadAllBytes($"{mainPath}\P7S_APT\{pv_id}.p7s")
                                 End If

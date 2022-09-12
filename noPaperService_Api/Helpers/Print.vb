@@ -60,7 +60,7 @@ Public Class Print
         Return docFile
     End Function
 
-    Public Shared Sub PrintExcel_Invoice(mainPath As String, printExcel As PrintExcel, layoutStamps As Models.LayoutStamps, responseData As ResponseData)
+    Public Shared Sub PrintExcel_Invoice(mainPath As String, printExcel As PrintExcel, layoutStamps As Models.LayoutStamps, responseData As ResponseData, signComponentApt As Models.SignComponent)
         Dim json As String = File.ReadAllText(printExcel.jsonFileNamePath)
         Dim pv As noPaperService_common.Entities.EcpSignData_pv = JsonConvert.DeserializeObject(Of noPaperService_common.Entities.EcpSignData_pv)(json)
 
@@ -334,14 +334,14 @@ Public Class Print
                 ws.Range("OTPUSK_ALLOW_FIO").Value = pv.pv_otv_fio
 
                 If layoutStamps.signApt IsNot Nothing Then
-                    For Each signComponent As Models.SignComponent In CreateStamps.CreateStamps.GetSigners(layoutStamps.signApt)
-                        If Not signComponent.SignCer.subjectPost.Contains("№") Then
-                            ws.Range("RECEIVED_PRODUCE").Value = signComponent.SignCer.subjectPost & " " & signComponent.SignCer.subjectOrg.Substring(signComponent.SignCer.subjectOrg.IndexOf("№"))
-                        Else
-                            ws.Range("RECEIVED_PRODUCE").Value = signComponent.SignCer.subjectPost
-                        End If
-                        ws.Range("RECEIVED_PRODUCE_FIO").Value = signComponent.SignCer.subject
-                    Next
+                    'Dim signComponent As Models.SignComponent = CreateStamps.CreateStamps.GetSigners(layoutStamps.signApt)
+                    If Not signComponentApt.SignCer.subjectPost.Contains("№") Then
+                        ws.Range("RECEIVED_PRODUCE").Value = signComponentApt.SignCer.subjectPost & " " & signComponentApt.SignCer.subjectOrg
+                    Else
+                        ws.Range("RECEIVED_PRODUCE").Value = signComponentApt.SignCer.subjectPost
+                    End If
+
+                    ws.Range("RECEIVED_PRODUCE_FIO").Value = signComponentApt.SignCer.subject
                 End If
             Catch ex As Exception
                 responseData.IsError = True
@@ -521,14 +521,17 @@ Public Class Print
                         list += 1
                     Next
 
-                    For Each signComponent As Models.SignComponent In CreateStamps.CreateStamps.GetSigners(layoutStamps.sign)
-                        ws.Range("SENT_PRODUCE_FIO").Value = signComponent.SignCer.subject
-                    Next
+                    Dim signComponent As Models.SignComponent = CreateStamps.CreateStamps.GetSigners(layoutStamps.sign)
+
+                    'For Each signComponent As Models.SignComponent In CreateStamps.CreateStamps.GetSigners(layoutStamps.sign)
+                    ws.Range("SENT_PRODUCE_FIO").Value = signComponent.SignCer.subject
+                    'Next
 
                     If layoutStamps.signApt IsNot Nothing Then
-                        For Each signComponent As Models.SignComponent In CreateStamps.CreateStamps.GetSigners(layoutStamps.signApt)
-                            ws.Range("RECEIVED_PRODUCE_FIO").Value = signComponent.SignCer.subject
-                        Next
+                        signComponent = CreateStamps.CreateStamps.GetSigners(layoutStamps.signApt)
+                        'For Each signComponent As Models.SignComponent In CreateStamps.CreateStamps.GetSigners(layoutStamps.signApt)
+                        ws.Range("RECEIVED_PRODUCE_FIO").Value = signComponent.SignCer.subject
+                        'Next
                     End If
 
                     ws.Range("DATE1").Value = pv.pv_otr_date?.ToString("dd.MM.yyyy")

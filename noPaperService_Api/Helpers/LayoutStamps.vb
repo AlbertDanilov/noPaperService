@@ -135,7 +135,7 @@ Namespace Helpers
             End Using
         End Function
 
-        Public Shared Function LayoutStampsExcelBook(savePath As String, layoutStamps As Models.LayoutStamps, printExcel As PrintExcel, responseData As ResponseData) 'Книжная ориентация
+        Public Shared Function LayoutStampsExcelBook(savePath As String, layoutStamps As Models.LayoutStamps, printExcel As PrintExcel, responseData As ResponseData, signComponentApt As Models.SignComponent) 'Книжная ориентация
             layoutStamps.pdfFileNamePathExtension = $"{savePath}\{printExcel.docFileName}.pdf"
 
             'Список для штампов
@@ -146,7 +146,7 @@ Namespace Helpers
                 stampList = CreateStamps.CreateStamps.GetStamps(layoutStamps.sign, layoutStamps.signIden, Nothing, 1, printExcel.pvOtrDate)
 
                 If layoutStamps.signApt IsNot Nothing Then
-                    CreateStamps.CreateStamps.GetStamps(layoutStamps.signApt, layoutStamps.signIden, stampList, 2, Nothing, printExcel.pvAptAcceptDate)
+                    CreateStamps.CreateStamps.GetStamps(layoutStamps.signApt, layoutStamps.signIden, stampList, 2, Nothing, printExcel.pvAptAcceptDate, signComponentApt)
                     _stampList = CreateStamps.CreateStamps._GetStamps(printExcel)
                 End If
             Catch ex As Exception
@@ -240,23 +240,6 @@ Namespace Helpers
                                             _newWidth = 17
                                             _newHeight = 17
                                             _isNewPage = False
-
-                                            'If maxHeightPage > lastElemHeight + 280 Then
-                                            '    _newWidth = 17
-                                            '    _newHeight = 17
-                                            '    _isNewPage = False
-                                            'Else
-                                            '    _isNewPage = True
-                                            '    Dim rectangle = reader.GetPageSize(1)
-                                            '    stamper.InsertPage(reader.NumberOfPages + 1, rectangle)
-                                            '    Try
-                                            '        stamper.GetOverContent(reader.NumberOfPages - 1).AddImage(imagetext)
-                                            '    Catch ex As Exception
-                                            '        Throw ex
-                                            '    End Try
-                                            '    _newWidth = 17
-                                            '    _newHeight = _maxVerticalHeightPage - (10 + 120)
-                                            'End If
 
                                             Dim _pdfContentByte As PdfContentByte = stamper.GetOverContent(reader.NumberOfPages)
                                             Dim _image2 As iTextSharp.text.Image = iTextSharp.text.Image.GetInstance(CreateStamps.CreateStamps.ImageToBytes(_stampList(_stampList.Count - 1)))
