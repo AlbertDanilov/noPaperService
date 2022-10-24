@@ -334,7 +334,8 @@ Public Class Print
                 ws.Range("OTPUSK_ALLOW_FIO").Value = pv.pv_otv_fio
 
                 If layoutStamps.signApt IsNot Nothing Then
-                    ws.Range("RECEIVED_PRODUCE").Value = signComponentApt.SignCer.subjectPost & ", " & signComponentApt.SignCer.subjectOrg
+                    ws.Range("RECEIVED_PRODUCE").Value = signComponentApt.SignCer.subjectPost & ", " & pv.pv_agent_agnabbr
+                    'ws.Range("RECEIVED_PRODUCE").Value = signComponentApt.SignCer.subjectPost & ", " & signComponentApt.SignCer.subjectOrg
                     'If Not signComponentApt.SignCer.subjectPost.Contains("№") Then
                     '    ws.Range("RECEIVED_PRODUCE").Value = signComponentApt.SignCer.subjectPost & " " & signComponentApt.SignCer.subjectOrg
                     'Else
